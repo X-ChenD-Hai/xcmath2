@@ -1,0 +1,41 @@
+#pragma once
+
+#include <cstdint>
+#include <type_traits>
+namespace xcmath ::number_meta {
+template <typename T>
+struct number_properties;
+template <typename T>
+struct number_properties<T&> : public number_properties<std::decay_t<T>> {};
+
+template <typename number_type_, number_type_ zero_, number_type_ unit_>
+struct number_properties_helper {
+    using number_type = number_type_;
+    static constexpr number_type zero = zero_;
+    static constexpr number_type unit = unit_;
+};
+template <>
+struct number_properties<uint8_t> : number_properties_helper<uint8_t, 0, 1> {};
+template <>
+struct number_properties<uint16_t> : number_properties_helper<uint16_t, 0, 1> {
+};
+template <>
+struct number_properties<uint32_t> : number_properties_helper<uint32_t, 0, 1> {
+};
+template <>
+struct number_properties<uint64_t> : number_properties_helper<uint64_t, 0, 1> {
+};
+template <>
+struct number_properties<int8_t> : number_properties_helper<int8_t, 0, 1> {};
+template <>
+struct number_properties<int16_t> : number_properties_helper<int16_t, 0, 1> {};
+template <>
+struct number_properties<int32_t> : number_properties_helper<int32_t, 0, 1> {};
+template <>
+struct number_properties<int64_t> : number_properties_helper<int64_t, 0, 1> {};
+template <>
+struct number_properties<float> : number_properties_helper<float, 0.f, 1.f> {};
+template <>
+struct number_properties<double> : number_properties_helper<double, 0., 1.> {};
+
+}  // namespace xcmath::number_meta

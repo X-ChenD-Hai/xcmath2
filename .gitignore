@@ -1,0 +1,15 @@
+/*
+!/.gitignore
+!/xcmath
+!/test
+!/docs
+!/CMakeLists.txt
+!/README.md
+!.clang-format
+!resources/
+!vcpkg.json
+!CMakePresets.json
+!Doxyfile
+!xmake.lua
+!examples/
+docs/doxygen
