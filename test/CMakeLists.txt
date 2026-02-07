@@ -24,3 +24,22 @@ add_test(
     NAME vec_test
     COMMAND vec_test
 )
+
+# Matrix tests
+add_executable(mat_test)
+
+target_sources(mat_test PRIVATE
+    mat/operations_row_major_test.cc
+    mat/operations_col_major_test.cc
+)
+
+target_link_libraries(
+    mat_test
+    PRIVATE
+    ${TEST_LIBS}
+)
+
+add_test(
+    NAME mat_test
+    COMMAND mat_test
+)
