@@ -121,6 +121,12 @@ template <typename Base, typename T, size_t size_>
 struct size_method<Base, vec<T, size_>> : Base {
     inline constexpr size_t size() const noexcept { return size_; }
 };
+template <typename Base, typename T, size_t size_>
+struct unit_factory_method<Base, vec<T, size_>> : Base {
+    inline static constexpr size_t unit() noexcept {
+        static_assert(false, "vec not supported unit_factory_method");
+    }
+};
 
 namespace number_meta {
 template <typename T, size_t size_>
