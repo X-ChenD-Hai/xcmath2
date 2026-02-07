@@ -53,7 +53,7 @@ constexpr T trace(const mat<T, size_, size_, is_col_major_>& m) {
 // 向量外积
 template <typename T, size_t size_>
 constexpr auto outer_product(const vec<T, size_>& v1, const vec<T, size_>& v2) {
-    mat<T, size_, size_, false> result;
+    mat<T, size_, size_> result;
     for (size_t i = 0; i < size_; ++i) {
         for (size_t j = 0; j < size_; ++j) {
             result[i, j] = v1[i] * v2[j];

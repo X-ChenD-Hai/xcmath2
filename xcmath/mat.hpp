@@ -3,22 +3,41 @@
 #include <type_traits>
 
 #include "./alias.hpp"
+#include "./mat_methods.hpp"
 #include "./vec.hpp"
+#include "methods.hpp"
 
 namespace xcmath {
+using comman_mat_ext_methods = method_recorder<trace_method>;
+namespace details {
+template <typename T, size_t row_, size_t col_, bool is_col_major_,
+          typename ext_method_recorder = comman_mat_ext_methods>
+struct base_of_mat_impl_helper;
+template <typename T, size_t row_, size_t col_, bool is_col_major_,
+          template <typename, typename> typename... ext_methods>
+struct base_of_mat_impl_helper<T, row_, col_, is_col_major_,
+                               method_recorder<ext_methods...>> {
+    using type =
+        std::conditional_t<is_col_major_,
+                           vec_impl<mat<T, row_, col_, is_col_major_>,
+                                    vec<T, row_>, col_, ext_methods...>,
+                           vec_impl<mat<T, row_, col_, is_col_major_>,
+                                    vec<T, col_>, row_, ext_methods...>>;
+};
+
+template <typename T, size_t row_, size_t col_, bool is_col_major_>
+using base_of_mat_impl =
+    base_of_mat_impl_helper<T, row_, col_, is_col_major_>::type;
+};  // namespace details
+
 template <typename T, size_t row_, size_t col_, bool is_col_major_>
 struct mat_impl
-    : public std::conditional_t<
-          is_col_major_,
-          vec_impl<mat<T, row_, col_, is_col_major_>, vec<T, row_>, col_>,
-          vec_impl<mat<T, row_, col_, is_col_major_>, vec<T, col_>, row_>> {
+    : public details::base_of_mat_impl<T, row_, col_, is_col_major_> {
    private:
     using mat = mat<T, row_, col_, is_col_major_>;
 
    protected:
-    using Super =
-        std::conditional_t<is_col_major_, vec_impl<mat, vec<T, row_>, col_>,
-                           vec_impl<mat, vec<T, col_>, row_>>;
+    using Super = details::base_of_mat_impl<T, row_, col_, is_col_major_>;
 
    public:
     using Super::Super;

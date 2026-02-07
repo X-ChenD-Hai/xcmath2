@@ -22,28 +22,14 @@ auto get_m() {
 
 int main() {
     auto v = get_m();
+    xcmath::vec3<float> v1{1, 1, 3};
     xcmath::vec3<float> v2{1, 2, 3};
+    auto m = xcmath::mat3<float>{{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
 
-    std::cout << v.size() << std::endl;
-    std::cout << v2.normalize() << std::endl;
-
-    std::cout << "size: " << sizeof(vec3<float>) << std::endl;
-    std::cout << "size: " << sizeof(mat3<float>) << std::endl;
-
-    auto start = &(v[0][0]);
-    assert((start == &v[0, 0]));
-    std::cout << (&(v[0, 0]) - start) << " = " << v[0, 0] << std::endl;
-    std::cout << (&(v[0, 1]) - start) << " = " << v[0, 1] << std::endl;
-    std::cout << (&(v[0, 2]) - start) << " = " << v[0, 2] << std::endl;
-    std::cout << (&(v[1, 0]) - start) << " = " << v[1, 0] << std::endl;
-    std::cout << (&(v[1, 1]) - start) << " = " << v[1, 1] << std::endl;
-    std::cout << (&(v[1, 2]) - start) << " = " << v[1, 2] << std::endl;
-    std::cout << (&(v[2, 0]) - start) << " = " << v[2, 0] << std::endl;
-    std::cout << (&(v[2, 1]) - start) << " = " << v[2, 1] << std::endl;
-    std::cout << (&(v[2, 2]) - start) << " = " << v[2, 2] << std::endl;
-
-    // std::cout << mat3<float>::zero() << std::endl;
-    std::cout << v << std::endl;
+    std::cout << v2.cross(v1) << std::endl;
+    std::cout << v2.cross(v1).module() << std::endl;
+    std::cout << v2.cross(v1).sign() << std::endl;
+    std::cout << m.trace() << std::endl;
 
     return 0;
 }

@@ -9,6 +9,35 @@
 #include "number_meta.hpp"
 
 namespace xcmath {
+template <typename Derived, typename T, size_t size_>
+using vec_impl_methods = method_recorder<
+    point_accesser_sized<size_>::template type, size_method,
+    zero_factory_method, unit_factory_method, module_method, normalize_method,
+    dot_method, distance_method, distance_squared_method, angle_method,
+    project_method, reflect_method, refract_method, cross_product_method,
+    abs_method, min_method, max_method, clamp_method, floor_method, ceil_method,
+    round_method, fract_method, sign_method, equal_method, less_than_method,
+    greater_than_method, any_method, all_method>;
+namespace details {
+template <typename Derived, typename T, size_t size_, typename method_recorder,
+          template <typename, typename> class... ext_methods>
+struct base_of_vec_impl_helper;
+template <typename Derived, typename T, size_t size_,
+          template <typename, typename> class... methods,
+          template <typename, typename> class... ext_methods>
+struct base_of_vec_impl_helper<Derived, T, size_, method_recorder<methods...>,
+                               ext_methods...> {
+    using type = impl_methods<Derived, methods..., ext_methods...>;
+};
+
+template <typename Derived, typename T, size_t size_,
+          template <typename, typename> class... ext_methods>
+using base_of_vec_impl =
+    base_of_vec_impl_helper<Derived, T, size_,
+                            vec_impl_methods<Derived, T, size_>,
+                            ext_methods...>::type;
+}  // namespace details
+
 template <typename T, typename = void>
 struct vec_properties {
     static constexpr size_t dim = 0;
@@ -66,19 +95,11 @@ struct vec_view
    protected:
     T* ptr_;
 };
-template <typename Derived, typename T, size_t size_>
-class vec_impl;
-template <typename Derived, typename T, size_t size_>
+
+template <typename Derived, typename T, size_t size_,
+          template <typename, typename> class... ext_methods>
 class vec_impl
-    : public impl_methods<
-          Derived, point_accesser_sized<size_>::template type, size_method,
-          zero_factory_method, unit_factory_method, module_method,
-          normalize_method, dot_method, distance_method,
-          distance_squared_method, angle_method, project_method, reflect_method,
-          refract_method, cross_product_method, abs_method, min_method,
-          max_method, clamp_method, floor_method, ceil_method, round_method,
-          fract_method, sign_method, equal_method, less_than_method,
-          greater_than_method, any_method, all_method> {
+    : public details::base_of_vec_impl<Derived, T, size_, ext_methods...> {
    public:
     using item_type = T;
     using data_type = vec_properties<T>::data_type;

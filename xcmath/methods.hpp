@@ -374,3 +374,4 @@ struct impl_methods_helper<Derived, method, methods...> {
 
 #undef self
 #undef const_self
+#undef require_method
