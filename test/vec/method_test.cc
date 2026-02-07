@@ -1,8 +1,8 @@
-#include "xcmath/vec.hpp"
-
 #include <gtest/gtest.h>
 
 #include <cmath>
+
+#include "xcmath/vec.hpp"
 
 using namespace xcmath;
 

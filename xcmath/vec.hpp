@@ -5,7 +5,7 @@
 
 #include "./alias.hpp"
 #include "./methods.hpp"
-#include "./point_accesser.hpp"
+#include "./point_accesser.hpp"  // IWYU pragma: keep
 #include "number_meta.hpp"
 
 namespace xcmath {
@@ -70,15 +70,15 @@ template <typename Derived, typename T, size_t size_>
 class vec_impl;
 template <typename Derived, typename T, size_t size_>
 class vec_impl
-    : public impl_methods<Derived, point_accesser_sized<size_>::template type,
-                          size_method, zero_factory_method, unit_factory_method,
-                          module_method, normalize_method, dot_method,
-                          distance_method, distance_squared_method, angle_method,
-                          project_method, reflect_method, refract_method,
-                          cross_product_method, abs_method, min_method, max_method,
-                          clamp_method, floor_method, ceil_method, round_method,
-                          fract_method, sign_method, equal_method, less_than_method,
-                          greater_than_method, any_method, all_method> {
+    : public impl_methods<
+          Derived, point_accesser_sized<size_>::template type, size_method,
+          zero_factory_method, unit_factory_method, module_method,
+          normalize_method, dot_method, distance_method,
+          distance_squared_method, angle_method, project_method, reflect_method,
+          refract_method, cross_product_method, abs_method, min_method,
+          max_method, clamp_method, floor_method, ceil_method, round_method,
+          fract_method, sign_method, equal_method, less_than_method,
+          greater_than_method, any_method, all_method> {
    public:
     using item_type = T;
     using data_type = vec_properties<T>::data_type;
@@ -139,11 +139,9 @@ template <typename Base, typename T>
 struct cross_product_method<Base, vec<T, 3>> : Base {
     inline constexpr vec<T, 3> cross(const vec<T, 3>& other) const noexcept {
         const vec<T, 3>& self = *static_cast<const vec<T, 3>*>(this);
-        return vec<T, 3>{
-            self[1] * other[2] - self[2] * other[1],
-            self[2] * other[0] - self[0] * other[2],
-            self[0] * other[1] - self[1] * other[0]
-        };
+        return vec<T, 3>{self[1] * other[2] - self[2] * other[1],
+                         self[2] * other[0] - self[0] * other[2],
+                         self[0] * other[1] - self[1] * other[0]};
     }
 };
 

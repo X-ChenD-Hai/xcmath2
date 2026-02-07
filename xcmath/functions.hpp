@@ -1,6 +1,8 @@
 #pragma once
-
 #include <cmath>
+
+#include "./alias.hpp"
+
 namespace xcmath {
 using std::acos;
 using std::asin;
@@ -61,8 +63,10 @@ constexpr auto outer_product(const vec<T, size_>& v1, const vec<T, size_>& v2) {
 }
 
 // 矩阵乘法 (mat * mat)
-template <typename T, size_t row1_, size_t col1_, size_t col2_, bool is_col_major_>
-constexpr auto operator*(const mat<T, row1_, col1_, is_col_major_>& m1, const mat<T, col1_, col2_, is_col_major_>& m2) {
+template <typename T, size_t row1_, size_t col1_, size_t col2_,
+          bool is_col_major_>
+constexpr auto operator*(const mat<T, row1_, col1_, is_col_major_>& m1,
+                         const mat<T, col1_, col2_, is_col_major_>& m2) {
     mat<T, row1_, col2_, is_col_major_> result;
     for (size_t i = 0; i < row1_; ++i) {
         for (size_t j = 0; j < col2_; ++j) {
@@ -77,7 +81,8 @@ constexpr auto operator*(const mat<T, row1_, col1_, is_col_major_>& m1, const ma
 
 // 矩阵与向量乘法 (mat * vec)
 template <typename T, size_t row_, size_t col_, bool is_col_major_>
-constexpr auto operator*(const mat<T, row_, col_, is_col_major_>& m, const vec<T, col_>& v) {
+constexpr auto operator*(const mat<T, row_, col_, is_col_major_>& m,
+                         const vec<T, col_>& v) {
     vec<T, row_> result;
     for (size_t i = 0; i < row_; ++i) {
         result[i] = T{};
@@ -90,7 +95,8 @@ constexpr auto operator*(const mat<T, row_, col_, is_col_major_>& m, const vec<T
 
 // 矩阵加减法
 template <typename T, size_t row_, size_t col_, bool is_col_major_>
-constexpr auto operator+(const mat<T, row_, col_, is_col_major_>& m1, const mat<T, row_, col_, is_col_major_>& m2) {
+constexpr auto operator+(const mat<T, row_, col_, is_col_major_>& m1,
+                         const mat<T, row_, col_, is_col_major_>& m2) {
     mat<T, row_, col_, is_col_major_> result;
     for (size_t i = 0; i < row_; ++i) {
         for (size_t j = 0; j < col_; ++j) {
@@ -101,7 +107,8 @@ constexpr auto operator+(const mat<T, row_, col_, is_col_major_>& m1, const mat<
 }
 
 template <typename T, size_t row_, size_t col_, bool is_col_major_>
-constexpr auto operator-(const mat<T, row_, col_, is_col_major_>& m1, const mat<T, row_, col_, is_col_major_>& m2) {
+constexpr auto operator-(const mat<T, row_, col_, is_col_major_>& m1,
+                         const mat<T, row_, col_, is_col_major_>& m2) {
     mat<T, row_, col_, is_col_major_> result;
     for (size_t i = 0; i < row_; ++i) {
         for (size_t j = 0; j < col_; ++j) {
@@ -112,8 +119,10 @@ constexpr auto operator-(const mat<T, row_, col_, is_col_major_>& m1, const mat<
 }
 
 // 矩阵标量乘法
-template <typename T, size_t row_, size_t col_, bool is_col_major_, typename Scalar>
-constexpr auto operator*(const mat<T, row_, col_, is_col_major_>& m, Scalar scalar) {
+template <typename T, size_t row_, size_t col_, bool is_col_major_,
+          typename Scalar>
+constexpr auto operator*(const mat<T, row_, col_, is_col_major_>& m,
+                         Scalar scalar) {
     mat<T, row_, col_, is_col_major_> result;
     for (size_t i = 0; i < row_; ++i) {
         for (size_t j = 0; j < col_; ++j) {
@@ -123,8 +132,10 @@ constexpr auto operator*(const mat<T, row_, col_, is_col_major_>& m, Scalar scal
     return result;
 }
 
-template <typename T, size_t row_, size_t col_, bool is_col_major_, typename Scalar>
-constexpr auto operator*(Scalar scalar, const mat<T, row_, col_, is_col_major_>& m) {
+template <typename T, size_t row_, size_t col_, bool is_col_major_,
+          typename Scalar>
+constexpr auto operator*(Scalar scalar,
+                         const mat<T, row_, col_, is_col_major_>& m) {
     return m * scalar;
 }
 
@@ -137,34 +148,30 @@ constexpr T determinant(const mat<T, 2, 2, is_col_major_>& m) {
 // 行列式计算 (3x3)
 template <typename T, bool is_col_major_>
 constexpr T determinant(const mat<T, 3, 3, is_col_major_>& m) {
-    return m[0, 0] * (m[1, 1] * m[2, 2] - m[1, 2] * m[2, 1])
-         - m[0, 1] * (m[1, 0] * m[2, 2] - m[1, 2] * m[2, 0])
-         + m[0, 2] * (m[1, 0] * m[2, 1] - m[1, 1] * m[2, 0]);
+    return m[0, 0] * (m[1, 1] * m[2, 2] - m[1, 2] * m[2, 1]) -
+           m[0, 1] * (m[1, 0] * m[2, 2] - m[1, 2] * m[2, 0]) +
+           m[0, 2] * (m[1, 0] * m[2, 1] - m[1, 1] * m[2, 0]);
 }
 
 // 行列式计算 (4x4)
 template <typename T, bool is_col_major_>
 constexpr T determinant(const mat<T, 4, 4, is_col_major_>& m) {
     return m[0, 0] * determinant(mat<T, 3, 3, is_col_major_>{
-        {m[1, 1], m[1, 2], m[1, 3]},
-        {m[2, 1], m[2, 2], m[2, 3]},
-        {m[3, 1], m[3, 2], m[3, 3]}
-    })
-         - m[0, 1] * determinant(mat<T, 3, 3, is_col_major_>{
-        {m[1, 0], m[1, 2], m[1, 3]},
-        {m[2, 0], m[2, 2], m[2, 3]},
-        {m[3, 0], m[3, 2], m[3, 3]}
-    })
-         + m[0, 2] * determinant(mat<T, 3, 3, is_col_major_>{
-        {m[1, 0], m[1, 1], m[1, 3]},
-        {m[2, 0], m[2, 1], m[2, 3]},
-        {m[3, 0], m[3, 1], m[3, 3]}
-    })
-         - m[0, 3] * determinant(mat<T, 3, 3, is_col_major_>{
-        {m[1, 0], m[1, 1], m[1, 2]},
-        {m[2, 0], m[2, 1], m[2, 2]},
-        {m[3, 0], m[3, 1], m[3, 2]}
-    });
+                         {m[1, 1], m[1, 2], m[1, 3]},
+                         {m[2, 1], m[2, 2], m[2, 3]},
+                         {m[3, 1], m[3, 2], m[3, 3]}}) -
+           m[0, 1] * determinant(mat<T, 3, 3, is_col_major_>{
+                         {m[1, 0], m[1, 2], m[1, 3]},
+                         {m[2, 0], m[2, 2], m[2, 3]},
+                         {m[3, 0], m[3, 2], m[3, 3]}}) +
+           m[0, 2] * determinant(mat<T, 3, 3, is_col_major_>{
+                         {m[1, 0], m[1, 1], m[1, 3]},
+                         {m[2, 0], m[2, 1], m[2, 3]},
+                         {m[3, 0], m[3, 1], m[3, 3]}}) -
+           m[0, 3] * determinant(mat<T, 3, 3, is_col_major_>{
+                         {m[1, 0], m[1, 1], m[1, 2]},
+                         {m[2, 0], m[2, 1], m[2, 2]},
+                         {m[3, 0], m[3, 1], m[3, 2]}});
 }
 
 // 矩阵求逆 (2x2)
@@ -186,17 +193,35 @@ constexpr auto inverse(const mat<T, 3, 3, is_col_major_>& m) {
     mat<T, 3, 3, is_col_major_> result;
 
     // 伴随矩阵
-    result[0, 0] = determinant(mat<T, 2, 2, is_col_major_>{{m[1, 1], m[1, 2]}, {m[2, 1], m[2, 2]}}) / det;
-    result[0, 1] = -determinant(mat<T, 2, 2, is_col_major_>{{m[1, 0], m[1, 2]}, {m[2, 0], m[2, 2]}}) / det;
-    result[0, 2] = determinant(mat<T, 2, 2, is_col_major_>{{m[1, 0], m[1, 1]}, {m[2, 0], m[2, 1]}}) / det;
+    result[0, 0] = determinant(mat<T, 2, 2, is_col_major_>{
+                       {m[1, 1], m[1, 2]}, {m[2, 1], m[2, 2]}}) /
+                   det;
+    result[0, 1] = -determinant(mat<T, 2, 2, is_col_major_>{
+                       {m[1, 0], m[1, 2]}, {m[2, 0], m[2, 2]}}) /
+                   det;
+    result[0, 2] = determinant(mat<T, 2, 2, is_col_major_>{
+                       {m[1, 0], m[1, 1]}, {m[2, 0], m[2, 1]}}) /
+                   det;
 
-    result[1, 0] = -determinant(mat<T, 2, 2, is_col_major_>{{m[0, 1], m[0, 2]}, {m[2, 1], m[2, 2]}}) / det;
-    result[1, 1] = determinant(mat<T, 2, 2, is_col_major_>{{m[0, 0], m[0, 2]}, {m[2, 0], m[2, 2]}}) / det;
-    result[1, 2] = -determinant(mat<T, 2, 2, is_col_major_>{{m[0, 0], m[0, 1]}, {m[2, 0], m[2, 1]}}) / det;
+    result[1, 0] = -determinant(mat<T, 2, 2, is_col_major_>{
+                       {m[0, 1], m[0, 2]}, {m[2, 1], m[2, 2]}}) /
+                   det;
+    result[1, 1] = determinant(mat<T, 2, 2, is_col_major_>{
+                       {m[0, 0], m[0, 2]}, {m[2, 0], m[2, 2]}}) /
+                   det;
+    result[1, 2] = -determinant(mat<T, 2, 2, is_col_major_>{
+                       {m[0, 0], m[0, 1]}, {m[2, 0], m[2, 1]}}) /
+                   det;
 
-    result[2, 0] = determinant(mat<T, 2, 2, is_col_major_>{{m[0, 1], m[0, 2]}, {m[1, 1], m[1, 2]}}) / det;
-    result[2, 1] = -determinant(mat<T, 2, 2, is_col_major_>{{m[0, 0], m[0, 2]}, {m[1, 0], m[1, 2]}}) / det;
-    result[2, 2] = determinant(mat<T, 2, 2, is_col_major_>{{m[0, 0], m[0, 1]}, {m[1, 0], m[1, 1]}}) / det;
+    result[2, 0] = determinant(mat<T, 2, 2, is_col_major_>{
+                       {m[0, 1], m[0, 2]}, {m[1, 1], m[1, 2]}}) /
+                   det;
+    result[2, 1] = -determinant(mat<T, 2, 2, is_col_major_>{
+                       {m[0, 0], m[0, 2]}, {m[1, 0], m[1, 2]}}) /
+                   det;
+    result[2, 2] = determinant(mat<T, 2, 2, is_col_major_>{
+                       {m[0, 0], m[0, 1]}, {m[1, 0], m[1, 1]}}) /
+                   det;
 
     return result;
 }
@@ -207,7 +232,7 @@ constexpr auto inverse(const mat<T, 4, 4, is_col_major_>& m) {
     // 使用伴随矩阵法求逆，这里简化实现
     T det = determinant(m);
     if (det == T{}) {
-        return m; // 奇异矩阵，返回原矩阵
+        return m;  // 奇异矩阵，返回原矩阵
     }
 
     // 构造伴随矩阵
@@ -229,7 +254,7 @@ constexpr auto inverse(const mat<T, 4, 4, is_col_major_>& m) {
                 minor_row++;
             }
             T cofactor = determinant(minor) * ((i + j) % 2 == 0 ? 1 : -1);
-            adjugate[j, i] = cofactor; // 伴随矩阵是余子式矩阵的转置
+            adjugate[j, i] = cofactor;  // 伴随矩阵是余子式矩阵的转置
         }
     }
 

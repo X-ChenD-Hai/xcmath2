@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <type_traits>
 
+#include "./alias.hpp"  // IWYU pragma: keep
 #include "./functions.hpp"
 #include "./number_meta.hpp"
 

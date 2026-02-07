@@ -1,8 +1,8 @@
-#include "xcmath/vec.hpp"
-
 #include <gtest/gtest.h>
 
 #include <cmath>
+
+#include "xcmath/vec.hpp"
 
 using namespace xcmath;
 
@@ -23,7 +23,8 @@ TEST(dot_product_test, dot_vec3) {
 TEST(dot_product_test, dot_vec4) {
     vec4<float> v1{1.0f, 2.0f, 3.0f, 4.0f};
     vec4<float> v2{5.0f, 6.0f, 7.0f, 8.0f};
-    EXPECT_FLOAT_EQ(v1.dot(v2), 1.0f * 5.0f + 2.0f * 6.0f + 3.0f * 7.0f + 4.0f * 8.0f);
+    EXPECT_FLOAT_EQ(v1.dot(v2),
+                    1.0f * 5.0f + 2.0f * 6.0f + 3.0f * 7.0f + 4.0f * 8.0f);
 }
 
 TEST(dot_product_test, dot_perpendicular) {
