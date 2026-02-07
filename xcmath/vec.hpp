@@ -22,7 +22,10 @@ struct vec_properties<T, std::void_t<typename T::data_type>> {
 };
 template <typename T, size_t size_, size_t stride_>
 struct const_vec_view
-    : impl_methods_helper<vec_view<T, size_, stride_>, point_accesser> {
+    : impl_methods_helper<vec_view<T, size_, stride_>,
+                          point_accesser_sized<size_>::template type> {
+    static inline constexpr size_t size() noexcept { return size_; }
+
     constexpr const_vec_view(const T* data) : ptr_(data) {}
     constexpr const T& operator[](size_t idx) const {
         assert_index(idx, size_);
@@ -32,14 +35,13 @@ struct const_vec_view
    protected:
     const T* ptr_;
 };
-template <typename T, size_t size_, size_t stride_>
-constexpr size_t methods_size<const_vec_view<T, size_, stride_>>{size_};
-template <typename T, size_t size_, size_t stride_>
-constexpr size_t methods_size<vec_view<T, size_, stride_>>{size_};
 
 template <typename T, size_t size_, size_t stride_>
 struct vec_view
-    : impl_methods_helper<vec_view<T, size_, stride_>, point_accesser> {
+    : impl_methods_helper<vec_view<T, size_, stride_>,
+                          point_accesser_sized<size_>::template type> {
+    static inline constexpr size_t size() noexcept { return size_; }
+
     constexpr vec_view(T* data) : ptr_(data) {}
     constexpr T& operator[](size_t idx) {
         assert_index(idx, size_);
@@ -67,13 +69,10 @@ struct vec_view
 template <typename Derived, typename T, size_t size_>
 class vec_impl;
 template <typename Derived, typename T, size_t size_>
-constexpr size_t methods_size<vec_impl<Derived, T, size_>>{size_};
-template <typename T, size_t size_>
-constexpr size_t methods_size<vec<T, size_>>{size_};
-template <typename Derived, typename T, size_t size_>
-class vec_impl : public impl_methods<Derived, point_accesser,
-                                     zero_factory_method, unit_factory_method,
-                                     module_method, normalize_method> {
+class vec_impl
+    : public impl_methods<Derived, point_accesser_sized<size_>::template type,
+                          size_method, zero_factory_method, unit_factory_method,
+                          module_method, normalize_method> {
    public:
     using item_type = T;
     using data_type = vec_properties<T>::data_type;
@@ -116,6 +115,11 @@ template <typename T, size_t size_>
 class vec : public vec_impl<vec<T, size_>, T, size_> {
    public:
     using vec_impl<vec<T, size_>, T, size_>::vec_impl;
+};
+
+template <typename Base, typename T, size_t size_>
+struct size_method<Base, vec<T, size_>> : Base {
+    inline constexpr size_t size() const noexcept { return size_; }
 };
 
 namespace number_meta {

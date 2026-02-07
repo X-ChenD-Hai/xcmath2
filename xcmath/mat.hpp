@@ -84,7 +84,13 @@ class mat<T, row_, col_, true> : public mat_impl<T, row_, col_, true> {
         return *this;
     }
 };
-
+template <typename Base, typename T, size_t row_, size_t col_,
+          bool is_col_major_>
+struct size_method<Base, mat<T, row_, col_, is_col_major_>> : Base {
+    inline constexpr size_t size() const noexcept {
+        return is_col_major_ ? col_ : row_;
+    }
+};
 namespace number_meta {
 template <typename T, size_t row_, size_t col_, bool is_col_major_>
 struct number_properties<mat<T, row_, col_, is_col_major_>> {

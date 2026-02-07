@@ -1,7 +1,6 @@
 #pragma once
-#include "./methods.hpp"
 namespace xcmath {
-template <typename Base, typename Derived, size_t size_ = methods_size<Derived>>
+template <typename Base, typename Derived, size_t size_>
 struct point_accesser : Base {};
 template <typename Base, typename Derived>
 struct point_accesser<Base, Derived, 1> : Base {
@@ -38,6 +37,12 @@ struct point_accesser<Base, Derived, 4> : point_accesser<Base, Derived, 3> {
     inline constexpr const auto& w() const noexcept {
         return static_cast<Derived*>(this)->operator[](3);
     }
+};
+
+template <size_t size_>
+struct point_accesser_sized {
+    template <typename Base, typename Derived>
+    using type = point_accesser<Base, Derived, size_>;
 };
 
 }  // namespace xcmath

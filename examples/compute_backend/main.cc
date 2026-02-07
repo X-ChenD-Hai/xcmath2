@@ -9,31 +9,22 @@
 using namespace xcmath;
 
 auto get_m() {
-    mat<int, 2, 3, true> a{};
+    mat<float, 2, 3, false> a{};
 
-    a[0, 0] = 1;
-    a[0, 1] = 2;
-    a[0, 2] = 3;
-    a[1, 0] = 4;
-    a[1, 1] = 5;
-    a[1, 2] = 6;
+    a[0][0] = 1;
+    a[0][1] = 2;
+    a[0][2] = 3;
+    a[1][0] = 4;
+    a[1][1] = 5;
+    a[1][2] = 6;
     return a;
 }
-class EmptyBase {};
-
-template <class Base>
-struct D : Base {
-    void d();
-};
-template <class Base>
-struct C : Base {
-    void c();
-};
 
 int main() {
-    xcmath::mat3f v{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+    auto v = get_m();
     xcmath::vec3<float> v2{1, 2, 3};
 
+    std::cout << v.size() << std::endl;
     std::cout << v2.normalize() << std::endl;
 
     std::cout << "size: " << sizeof(vec3<float>) << std::endl;
