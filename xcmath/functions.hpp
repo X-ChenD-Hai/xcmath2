@@ -2,7 +2,29 @@
 
 #include <cmath>
 namespace xcmath {
+using std::acos;
+using std::asin;
+using std::atan;
+using std::atan2;
+using std::ceil;
+using std::cos;
+using std::cosh;
+using std::exp;
+using std::fabs;
+using std::floor;
+using std::fmod;
+using std::frexp;
+using std::ldexp;
+using std::log;
+using std::log10;
+using std::modf;
+using std::pow;
+using std::round;
+using std::sin;
+using std::sinh;
 using std::sqrt;
+using std::tan;
+using std::tanh;
 
 // 矩阵转置
 template <typename T, size_t row_, size_t col_, bool is_col_major_>
@@ -162,20 +184,20 @@ template <typename T, bool is_col_major_>
 constexpr auto inverse(const mat<T, 3, 3, is_col_major_>& m) {
     T det = determinant(m);
     mat<T, 3, 3, is_col_major_> result;
-    
+
     // 伴随矩阵
     result[0, 0] = determinant(mat<T, 2, 2, is_col_major_>{{m[1, 1], m[1, 2]}, {m[2, 1], m[2, 2]}}) / det;
     result[0, 1] = -determinant(mat<T, 2, 2, is_col_major_>{{m[1, 0], m[1, 2]}, {m[2, 0], m[2, 2]}}) / det;
     result[0, 2] = determinant(mat<T, 2, 2, is_col_major_>{{m[1, 0], m[1, 1]}, {m[2, 0], m[2, 1]}}) / det;
-    
+
     result[1, 0] = -determinant(mat<T, 2, 2, is_col_major_>{{m[0, 1], m[0, 2]}, {m[2, 1], m[2, 2]}}) / det;
     result[1, 1] = determinant(mat<T, 2, 2, is_col_major_>{{m[0, 0], m[0, 2]}, {m[2, 0], m[2, 2]}}) / det;
     result[1, 2] = -determinant(mat<T, 2, 2, is_col_major_>{{m[0, 0], m[0, 1]}, {m[2, 0], m[2, 1]}}) / det;
-    
+
     result[2, 0] = determinant(mat<T, 2, 2, is_col_major_>{{m[0, 1], m[0, 2]}, {m[1, 1], m[1, 2]}}) / det;
     result[2, 1] = -determinant(mat<T, 2, 2, is_col_major_>{{m[0, 0], m[0, 2]}, {m[1, 0], m[1, 2]}}) / det;
     result[2, 2] = determinant(mat<T, 2, 2, is_col_major_>{{m[0, 0], m[0, 1]}, {m[1, 0], m[1, 1]}}) / det;
-    
+
     return result;
 }
 
@@ -187,10 +209,10 @@ constexpr auto inverse(const mat<T, 4, 4, is_col_major_>& m) {
     if (det == T{}) {
         return m; // 奇异矩阵，返回原矩阵
     }
-    
+
     // 构造伴随矩阵
     mat<T, 4, 4, is_col_major_> adjugate;
-    
+
     for (size_t i = 0; i < 4; ++i) {
         for (size_t j = 0; j < 4; ++j) {
             // 计算代数余子式
@@ -210,8 +232,8 @@ constexpr auto inverse(const mat<T, 4, 4, is_col_major_>& m) {
             adjugate[j, i] = cofactor; // 伴随矩阵是余子式矩阵的转置
         }
     }
-    
+
     return adjugate * (1 / det);
 }
 
-}
+}  // namespace xcmath

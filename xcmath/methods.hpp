@@ -79,6 +79,280 @@ inline constexpr auto normalize() const noexcept {
 }
 METHOD_DEF_END()
 
+// Vector operations
+
+METHOD_DEF_BEGIN(dot_method)
+inline constexpr auto dot(const Derived& other) const noexcept {
+    require_method(size_method);
+    auto result = number_meta::number_properties<
+        std::decay_t<decltype(const_self[0] * other[0])>>::zero;
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        result += const_self[i] * other[i];
+    }
+    return result;
+}
+METHOD_DEF_END()
+
+METHOD_DEF_BEGIN(distance_method)
+inline constexpr auto distance(const Derived& other) const noexcept {
+    require_method(module_method);
+    auto diff = const_self;
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        diff[i] -= other[i];
+    }
+    return diff.module();
+}
+METHOD_DEF_END()
+
+METHOD_DEF_BEGIN(distance_squared_method)
+inline constexpr auto distance_squared(const Derived& other) const noexcept {
+    auto result = number_meta::number_properties<
+        std::decay_t<decltype((const_self[0] - other[0]) *
+                              (const_self[0] - other[0]))>>::zero;
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        auto diff = const_self[i] - other[i];
+        result += diff * diff;
+    }
+    return result;
+}
+METHOD_DEF_END()
+
+METHOD_DEF_BEGIN(angle_method)
+inline constexpr auto angle(const Derived& other) const noexcept {
+    require_method(dot_method);
+    require_method(module_method);
+    auto dot_product = const_self.dot(other);
+    auto modules = const_self.module() * other.module();
+    return xcmath::acos(dot_product / modules);
+}
+METHOD_DEF_END()
+
+// Cross product for vec3 - base template (not usable)
+template <typename Base, typename Derived>
+struct cross_product_method : Base {
+    inline constexpr auto cross(const Derived& other) const noexcept {
+        static_assert(sizeof(Derived) == 0, "cross() only valid for vec3");
+        using item_type =
+            std::decay_t<decltype((*static_cast<const Derived*>(this))[0])>;
+        return Derived{number_meta::number_properties<item_type>::zero};
+    }
+};
+
+METHOD_DEF_BEGIN(project_method)
+inline constexpr auto project(const Derived& onto) const noexcept {
+    require_method(dot_method);
+    auto onto_module_sq = number_meta::number_properties<
+        std::decay_t<decltype(onto[0] * onto[0])>>::zero;
+    for (size_t i = 0; i < onto.size(); ++i) {
+        onto_module_sq += onto[i] * onto[i];
+    }
+    auto scalar = const_self.dot(onto) / onto_module_sq;
+    auto result = const_self;
+    for (size_t i = 0; i < result.size(); ++i) {
+        result[i] = onto[i] * scalar;
+    }
+    return result;
+}
+METHOD_DEF_END()
+
+METHOD_DEF_BEGIN(reflect_method)
+inline constexpr auto reflect(const Derived& normal) const noexcept {
+    require_method(dot_method);
+    auto dot_prod = const_self.dot(normal);
+    auto result = const_self;
+    for (size_t i = 0; i < result.size(); ++i) {
+        result[i] = result[i] -
+                    number_meta::number_properties<decltype(dot_prod)>::unit *
+                        2 * dot_prod * normal[i];
+    }
+    return result;
+}
+METHOD_DEF_END()
+
+METHOD_DEF_BEGIN(refract_method)
+inline constexpr auto refract(const Derived& normal, auto eta) const noexcept {
+    require_method(dot_method);
+    require_method(module_method);
+    auto dot_prod = const_self.dot(normal);
+    auto k = number_meta::number_properties<decltype(eta)>::unit -
+             eta * eta *
+                 (number_meta::number_properties<decltype(dot_prod)>::unit -
+                  dot_prod * dot_prod);
+    if (k < number_meta::number_properties<decltype(k)>::zero) {
+        return Derived{number_meta::number_properties<
+            std::decay_t<decltype(const_self[0])>>::zero};
+    }
+    auto result = const_self;
+    for (size_t i = 0; i < result.size(); ++i) {
+        result[i] = eta * const_self[i] -
+                    (eta * dot_prod + xcmath::sqrt(k)) * normal[i];
+    }
+    return result;
+}
+METHOD_DEF_END()
+
+// Component-wise operations
+
+METHOD_DEF_BEGIN(abs_method)
+inline constexpr auto abs() const noexcept {
+    auto result = const_self;
+    using value_type = std::decay_t<decltype(result[0])>;
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        result[i] = result[i] < number_meta::number_properties<value_type>::zero
+                        ? -result[i]
+                        : result[i];
+    }
+    return result;
+}
+METHOD_DEF_END()
+
+METHOD_DEF_BEGIN(min_method)
+inline constexpr auto min(const Derived& other) const noexcept {
+    auto result = const_self;
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        result[i] = result[i] < other[i] ? result[i] : other[i];
+    }
+    return result;
+}
+METHOD_DEF_END()
+
+METHOD_DEF_BEGIN(max_method)
+inline constexpr auto max(const Derived& other) const noexcept {
+    auto result = const_self;
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        result[i] = result[i] > other[i] ? result[i] : other[i];
+    }
+    return result;
+}
+METHOD_DEF_END()
+
+METHOD_DEF_BEGIN(clamp_method)
+inline constexpr auto clamp(const Derived& min_vec,
+                            const Derived& max_vec) const noexcept {
+    auto result = const_self;
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        result[i] = result[i] < min_vec[i]   ? min_vec[i]
+                    : result[i] > max_vec[i] ? max_vec[i]
+                                             : result[i];
+    }
+    return result;
+}
+METHOD_DEF_END()
+
+METHOD_DEF_BEGIN(floor_method)
+inline constexpr auto floor() const noexcept {
+    auto result = const_self;
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        result[i] = xcmath::floor(result[i]);
+    }
+    return result;
+}
+METHOD_DEF_END()
+
+METHOD_DEF_BEGIN(ceil_method)
+inline constexpr auto ceil() const noexcept {
+    auto result = const_self;
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        result[i] = xcmath::ceil(result[i]);
+    }
+    return result;
+}
+METHOD_DEF_END()
+
+METHOD_DEF_BEGIN(round_method)
+inline constexpr auto round() const noexcept {
+    auto result = const_self;
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        result[i] = xcmath::round(result[i]);
+    }
+    return result;
+}
+METHOD_DEF_END()
+
+METHOD_DEF_BEGIN(fract_method)
+inline constexpr auto fract() const noexcept {
+    auto result = const_self;
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        result[i] = result[i] - xcmath::floor(result[i]);
+    }
+    return result;
+}
+METHOD_DEF_END()
+
+METHOD_DEF_BEGIN(sign_method)
+inline constexpr auto sign() const noexcept {
+    auto result = const_self;
+    using value_type = std::decay_t<decltype(result[0])>;
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        result[i] =
+            result[i] < number_meta::number_properties<value_type>::zero
+                ? -number_meta::number_properties<value_type>::unit
+                : (result[i] > number_meta::number_properties<value_type>::zero
+                       ? number_meta::number_properties<value_type>::unit
+                       : number_meta::number_properties<value_type>::zero);
+    }
+    return result;
+}
+METHOD_DEF_END()
+
+// Comparison operations
+
+METHOD_DEF_BEGIN(equal_method)
+inline constexpr bool equal(const Derived& other, auto epsilon) const noexcept {
+    require_method(size_method);
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        if (xcmath::fabs(const_self[i] - other[i]) > epsilon) {
+            return false;
+        }
+    }
+    return true;
+}
+METHOD_DEF_END()
+
+METHOD_DEF_BEGIN(less_than_method)
+inline constexpr Derived less_than(const Derived& other) const noexcept {
+    auto result = const_self;
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        result[i] = const_self[i] < other[i];
+    }
+    return result;
+}
+METHOD_DEF_END()
+
+METHOD_DEF_BEGIN(greater_than_method)
+inline constexpr Derived greater_than(const Derived& other) const noexcept {
+    auto result = const_self;
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        result[i] = const_self[i] > other[i];
+    }
+    return result;
+}
+METHOD_DEF_END()
+
+METHOD_DEF_BEGIN(any_method)
+inline constexpr bool any() const noexcept {
+    require_method(size_method);
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        if (const_self[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+METHOD_DEF_END()
+
+METHOD_DEF_BEGIN(all_method)
+inline constexpr bool all() const noexcept {
+    require_method(size_method);
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        if (!const_self[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+METHOD_DEF_END()
+
 template <typename Derived, template <typename, typename> class... methods>
 struct impl_methods_helper;
 template <typename Derived, template <typename, typename> class... methods>
