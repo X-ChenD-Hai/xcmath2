@@ -129,15 +129,14 @@ inline constexpr auto angle(const Derived& other) const noexcept {
 METHOD_DEF_END()
 
 // Cross product for vec3 - base template (not usable)
-template <typename Base, typename Derived>
-struct cross_product_method : Base {
-    inline constexpr auto cross(const Derived& other) const noexcept {
-        static_assert(sizeof(Derived) == 0, "cross() only valid for vec3");
-        using item_type =
-            std::decay_t<decltype((*static_cast<const Derived*>(this))[0])>;
-        return Derived{number_meta::number_properties<item_type>::zero};
-    }
-};
+METHOD_DEF_BEGIN(cross_product_method)
+inline constexpr auto cross(const Derived& other) const noexcept {
+    static_assert(sizeof(Derived) == 0, "cross() only valid for vec3");
+    using item_type =
+        std::decay_t<decltype((*static_cast<const Derived*>(this))[0])>;
+    return Derived{number_meta::number_properties<item_type>::zero};
+}
+METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(project_method)
 inline constexpr auto project(const Derived& onto) const noexcept {
