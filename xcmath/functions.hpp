@@ -308,4 +308,67 @@ constexpr auto inverse(const mat<T, 4, 4, is_col_major_>& m) {
     return adjugate * (1 / det);
 }
 
+// 矩阵求逆 (通用尺寸) - 使用高斯消元法
+template <typename T, size_t size_, bool is_col_major_>
+constexpr auto inverse(const mat<T, size_, size_, is_col_major_>& m) {
+    mat<T, size_, size_, is_col_major_> a = m;
+    mat<T, size_, size_, is_col_major_> aug{};
+
+    // Build augmented matrix [A|I]
+    for (size_t i = 0; i < size_; ++i) {
+        for (size_t j = 0; j < size_; ++j) {
+            aug[i, j] = a[i, j];
+            aug[i, j + size_] = (i == j) ? T{1} : T{};
+        }
+    }
+
+    // Gaussian elimination with partial pivoting
+    for (size_t i = 0; i < size_; ++i) {
+        // Find pivot
+        size_t pivot = i;
+        for (size_t r = i + 1; r < size_; ++r) {
+            if (std::fabs(aug[r, i]) > std::fabs(aug[pivot, i])) {
+                pivot = r;
+            }
+        }
+
+        // Swap rows if needed
+        if (pivot != i) {
+            for (size_t c = i; c < 2 * size_; ++c) {
+                std::swap(aug[i, c], aug[pivot, c]);
+            }
+        }
+
+        // Check for singular matrix
+        if (std::fabs(aug[i, i]) == T{}) {
+            return m;  // Singular matrix, return original
+        }
+
+        // Scale pivot row
+        T pivot_val = aug[i, i];
+        for (size_t c = i; c < 2 * size_; ++c) {
+            aug[i, c] /= pivot_val;
+        }
+
+        // Eliminate column
+        for (size_t r = 0; r < size_; ++r) {
+            if (r == i) continue;
+            T factor = aug[r, i];
+            for (size_t c = i; c < 2 * size_; ++c) {
+                aug[r, c] -= factor * aug[i, c];
+            }
+        }
+    }
+
+    // Extract inverse from augmented matrix
+    mat<T, size_, size_, is_col_major_> result{};
+    for (size_t i = 0; i < size_; ++i) {
+        for (size_t j = 0; j < size_; ++j) {
+            result[i, j] = aug[i, j + size_];
+        }
+    }
+
+    return result;
+}
+
 }  // namespace xcmath

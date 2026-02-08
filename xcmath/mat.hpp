@@ -8,7 +8,8 @@
 #include "methods.hpp"
 
 namespace xcmath {
-using comman_mat_ext_methods = method_recorder<trace_method>;
+using comman_mat_ext_methods =
+    method_recorder<trace_method, transpose_method, inverse_method>;
 namespace details {
 template <typename T, size_t row_, size_t col_, bool is_col_major_,
           typename ext_method_recorder = comman_mat_ext_methods>
@@ -110,6 +111,7 @@ struct size_method<Base, mat<T, row_, col_, is_col_major_>> : Base {
         return is_col_major_ ? col_ : row_;
     }
 };
+
 namespace number_meta {
 template <typename T, size_t row_, size_t col_, bool is_col_major_>
 struct number_properties<mat<T, row_, col_, is_col_major_>> {
@@ -137,3 +139,11 @@ mat<T, row_, col_, false>::operator=(const mat<T, row_, col_, true>& other) {
 }
 
 }  // namespace xcmath
+
+// Specialize mat_dims for all matrix types
+template <typename T, size_t row_, size_t col_, bool is_col_major_>
+struct xcmath::mat_dims<xcmath::mat<T, row_, col_, is_col_major_>> {
+    static constexpr size_t rows = row_;
+    static constexpr size_t cols = col_;
+    static constexpr bool is_col_major = is_col_major_;
+};

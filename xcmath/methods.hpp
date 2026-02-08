@@ -24,6 +24,18 @@
     ;
 namespace xcmath {
 
+// Helper traits to extract matrix dimensions from the method recorder chain
+template <typename T>
+struct mat_dims_from_base {
+    static constexpr size_t rows = 0;
+    static constexpr size_t cols = 0;
+    static constexpr bool is_col_major = false;
+};
+
+// Specialization that extracts dims from any type
+template <typename T>
+struct mat_dims : mat_dims_from_base<T> {};
+
 template <template <typename, typename> class... methods>
 struct method_recorder {};
 
