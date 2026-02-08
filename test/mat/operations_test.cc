@@ -209,6 +209,124 @@ TEST(MatrixOperations, DeterminantIdentity) {
     EXPECT_FLOAT_EQ(result, 1.0f);
 }
 
+// Determinant member method tests
+TEST(DeterminantMethod, Determinant2x2Method) {
+    mat<float, 2, 2> m = {{1, 2}, {3, 4}};
+    float result = m.determinant();
+    EXPECT_FLOAT_EQ(result, -2.0f);
+}
+
+TEST(DeterminantMethod, Determinant3x3Method) {
+    mat<float, 3, 3> m = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+    float result = m.determinant();
+    EXPECT_FLOAT_EQ(result, 0.0f);
+}
+
+TEST(DeterminantMethod, Determinant4x4Method) {
+    mat<float, 4, 4> m = {
+        {1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
+    float result = m.determinant();
+    EXPECT_FLOAT_EQ(result, 1.0f);
+}
+
+TEST(DeterminantMethod, Determinant5x5Method) {
+    // Diagonal matrix with values 1, 2, 3, 4, 5
+    mat<float, 5, 5> m;
+    for (size_t i = 0; i < 5; ++i) {
+        for (size_t j = 0; j < 5; ++j) {
+            m[i, j] = (i == j) ? static_cast<float>(i + 1) : 0.0f;
+        }
+    }
+    float result = m.determinant();
+    EXPECT_FLOAT_EQ(result, 120.0f);  // 1*2*3*4*5
+}
+
+TEST(DeterminantMethod, Determinant5x5NonSingularMethod) {
+    mat<float, 5, 5> m = {{3, 2, 0, 1, 4},
+                          {2, 3, 1, 0, 1},
+                          {4, 1, 2, 3, 2},
+                          {1, 2, 3, 2, 1},
+                          {0, 1, 1, 2, 3}};
+    float result = m.determinant();
+    EXPECT_FLOAT_EQ(result, -56.0f);
+}
+
+TEST(DeterminantMethod, Determinant6x6UpperTriangularMethod) {
+    // Upper triangular matrix with 2s on diagonal
+    mat<float, 6, 6> m;
+    for (size_t i = 0; i < 6; ++i) {
+        for (size_t j = 0; j < 6; ++j) {
+            if (i <= j) {
+                m[i, j] = 2.0f;
+            } else {
+                m[i, j] = 0.0f;
+            }
+        }
+    }
+    float result = m.determinant();
+    EXPECT_FLOAT_EQ(result, 64.0f);  // 2^6 = 64
+}
+
+TEST(DeterminantMethod, Determinant6x6NonSingularMethod) {
+    mat<float, 6, 6> m = {{1, 2, 3, 4, 5, 6}, {0, 1, 2, 3, 4, 5},
+                          {0, 0, 1, 2, 3, 4}, {0, 0, 0, 1, 2, 3},
+                          {0, 0, 0, 0, 1, 2}, {0, 0, 0, 0, 0, 1}};
+    float result = m.determinant();
+    EXPECT_FLOAT_EQ(result, 1.0f);  // Upper triangular with 1s on diagonal
+}
+
+TEST(DeterminantMethod, DeterminantWithRowSwapMethod) {
+    // This matrix has a row that should trigger row swapping
+    mat<float, 4, 4> m = {
+        {0, 1, 2, 3}, {1, 2, 3, 4}, {2, 3, 4, 5}, {3, 4, 5, 6}};
+    float result = m.determinant();
+    EXPECT_FLOAT_EQ(result, 0.0f);  // Rows are linearly dependent
+}
+
+TEST(DeterminantMethod, DeterminantNegativeMethod) {
+    // Matrix with negative determinant
+    mat<float, 3, 3> m = {{2, 1, -1}, {-3, -1, 2}, {-2, 1, 2}};
+    float result = m.determinant();
+    EXPECT_FLOAT_EQ(result, -1.0f);
+}
+
+TEST(DeterminantMethod, DeterminantDoubleMethod) {
+    mat<double, 3, 3> m = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+    double result = m.determinant();
+    EXPECT_DOUBLE_EQ(result, 0.0);
+}
+
+TEST(DeterminantMethod, DeterminantIdentityMethod) {
+    mat<float, 5, 5> m = {{1, 0, 0, 0, 0},
+                          {0, 1, 0, 0, 0},
+                          {0, 0, 1, 0, 0},
+                          {0, 0, 0, 1, 0},
+                          {0, 0, 0, 0, 1}};
+    float result = m.determinant();
+    EXPECT_FLOAT_EQ(result, 1.0f);
+}
+
+TEST(DeterminantMethod, DeterminantSingularMethod) {
+    // Singular matrix (two identical rows)
+    mat<float, 3, 3> m = {{1, 2, 3}, {1, 2, 3}, {4, 5, 6}};
+    float result = m.determinant();
+    EXPECT_FLOAT_EQ(result, 0.0f);
+}
+
+TEST(DeterminantMethod, DeterminantLowerTriangularMethod) {
+    // Lower triangular matrix
+    mat<float, 4, 4> m = {
+        {2, 0, 0, 0}, {3, 4, 0, 0}, {1, 2, 3, 0}, {5, 6, 7, 8}};
+    float result = m.determinant();
+    EXPECT_FLOAT_EQ(result, 192.0f);  // 2 * 4 * 3 * 8 = 192
+}
+
+TEST(DeterminantMethod, DeterminantIntMethod) {
+    mat<int, 3, 3> m = {{2, 1, -1}, {-3, -1, 2}, {-2, 1, 2}};
+    int result = m.determinant();
+    EXPECT_EQ(result, -1);
+}
+
 // Transpose method tests (using member function)
 TEST(MatrixOperations, TransposeMethod2x3) {
     mat<float, 2, 3> m = {{1, 2, 3}, {4, 5, 6}};

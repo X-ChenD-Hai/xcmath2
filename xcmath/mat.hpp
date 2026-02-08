@@ -9,7 +9,8 @@
 
 namespace xcmath {
 using comman_mat_ext_methods =
-    method_recorder<trace_method, transpose_method, inverse_method>;
+    method_recorder<trace_method, determinant_method, transpose_method,
+                    inverse_method>;
 namespace details {
 template <typename T, size_t row_, size_t col_, bool is_col_major_,
           typename ext_method_recorder = comman_mat_ext_methods>
@@ -109,6 +110,120 @@ template <typename Base, typename T, size_t row_, size_t col_,
 struct size_method<Base, mat<T, row_, col_, is_col_major_>> : Base {
     inline constexpr size_t size() const noexcept {
         return is_col_major_ ? col_ : row_;
+    }
+};
+
+// determinant_method specialization for 2x2 matrix
+template <typename Base, typename T, bool is_col_major_>
+struct determinant_method<Base, mat<T, 2, 2, is_col_major_>> : Base {
+    inline constexpr T determinant() const noexcept {
+        const auto& self =
+            *static_cast<const mat<T, 2, 2, is_col_major_>*>(this);
+        return self[0, 0] * self[1, 1] - self[0, 1] * self[1, 0];
+    }
+};
+
+// determinant_method specialization for 3x3 matrix
+template <typename Base, typename T, bool is_col_major_>
+struct determinant_method<Base, mat<T, 3, 3, is_col_major_>> : Base {
+    inline constexpr T determinant() const noexcept {
+        const auto& self =
+            *static_cast<const mat<T, 3, 3, is_col_major_>*>(this);
+        return self[0, 0] *
+                   (self[1, 1] * self[2, 2] - self[1, 2] * self[2, 1]) -
+               self[0, 1] *
+                   (self[1, 0] * self[2, 2] - self[1, 2] * self[2, 0]) +
+               self[0, 2] * (self[1, 0] * self[2, 1] - self[1, 1] * self[2, 0]);
+    }
+};
+
+// determinant_method specialization for 4x4 matrix
+template <typename Base, typename T, bool is_col_major_>
+struct determinant_method<Base, mat<T, 4, 4, is_col_major_>> : Base {
+    inline constexpr T determinant() const noexcept {
+        const auto& self =
+            *static_cast<const mat<T, 4, 4, is_col_major_>*>(this);
+        return self[0, 0] *
+                   (self[1, 1] *
+                        (self[2, 2] * self[3, 3] - self[2, 3] * self[3, 2]) -
+                    self[1, 2] *
+                        (self[2, 1] * self[3, 3] - self[2, 3] * self[3, 1]) +
+                    self[1, 3] *
+                        (self[2, 1] * self[3, 2] - self[2, 2] * self[3, 1])) -
+               self[0, 1] *
+                   (self[1, 0] *
+                        (self[2, 2] * self[3, 3] - self[2, 3] * self[3, 2]) -
+                    self[1, 2] *
+                        (self[2, 0] * self[3, 3] - self[2, 3] * self[3, 0]) +
+                    self[1, 3] *
+                        (self[2, 0] * self[3, 2] - self[2, 2] * self[3, 0])) +
+               self[0, 2] *
+                   (self[1, 0] *
+                        (self[2, 1] * self[3, 3] - self[2, 3] * self[3, 1]) -
+                    self[1, 1] *
+                        (self[2, 0] * self[3, 3] - self[2, 3] * self[3, 0]) +
+                    self[1, 3] *
+                        (self[2, 0] * self[3, 1] - self[2, 1] * self[3, 0])) -
+               self[0, 3] *
+                   (self[1, 0] *
+                        (self[2, 1] * self[3, 2] - self[2, 2] * self[3, 1]) -
+                    self[1, 1] *
+                        (self[2, 0] * self[3, 2] - self[2, 2] * self[3, 0]) +
+                    self[1, 2] *
+                        (self[2, 0] * self[3, 1] - self[2, 1] * self[3, 0]));
+    }
+};
+
+// determinant_method specialization for generic NxN matrix (Gaussian
+// elimination)
+template <typename Base, typename T, size_t size_, bool is_col_major_>
+struct determinant_method<Base, mat<T, size_, size_, is_col_major_>> : Base {
+    inline constexpr T determinant() const noexcept {
+        const auto& self =
+            *static_cast<const mat<T, size_, size_, is_col_major_>*>(this);
+        // Copy matrix to avoid modifying original
+        mat<T, size_, size_, is_col_major_> a = self;
+
+        T det = number_meta::number_properties<T>::unit;
+        for (size_t i = 0; i < size_; ++i) {
+            // Find pivot
+            size_t pivot = i;
+            for (size_t r = i + 1; r < size_; ++r) {
+                if (xcmath::fabs(a[r, i]) > xcmath::fabs(a[pivot, i])) {
+                    pivot = r;
+                }
+            }
+
+            // If pivot is zero, matrix is singular
+            if (a[pivot, i] == number_meta::number_properties<T>::zero) {
+                return number_meta::number_properties<T>::zero;
+            }
+
+            // Swap rows if needed
+            if (pivot != i) {
+                for (size_t c = i; c < size_; ++c) {
+                    std::swap(a[i, c], a[pivot, c]);
+                }
+                det = -det;  // Row swap changes sign
+            }
+
+            // Elimination
+            for (size_t r = i + 1; r < size_; ++r) {
+                if (a[r, i] == number_meta::number_properties<T>::zero)
+                    continue;
+                T factor = a[r, i] / a[i, i];
+                for (size_t c = i; c < size_; ++c) {
+                    a[r, c] -= factor * a[i, c];
+                }
+            }
+        }
+
+        // Calculate product of diagonal
+        for (size_t i = 0; i < size_; ++i) {
+            det *= a[i, i];
+        }
+
+        return det;
     }
 };
 

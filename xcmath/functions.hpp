@@ -44,11 +44,7 @@ constexpr auto transpose(const mat<T, row_, col_, is_col_major_>& m) {
 // 矩阵的迹
 template <typename T, size_t size_, bool is_col_major_>
 constexpr T trace(const mat<T, size_, size_, is_col_major_>& m) {
-    T result{};
-    for (size_t i = 0; i < size_; ++i) {
-        result += m[i, i];
-    }
-    return result;
+    return m.trace();
 }
 
 // 向量外积
@@ -140,85 +136,10 @@ constexpr auto operator*(Scalar scalar,
     return m * scalar;
 }
 
-// 行列式计算 (2x2)
-template <typename T, bool is_col_major_>
-constexpr T determinant(const mat<T, 2, 2, is_col_major_>& m) {
-    return m[0, 0] * m[1, 1] - m[0, 1] * m[1, 0];
-}
-
-// 行列式计算 (3x3)
-template <typename T, bool is_col_major_>
-constexpr T determinant(const mat<T, 3, 3, is_col_major_>& m) {
-    return m[0, 0] * (m[1, 1] * m[2, 2] - m[1, 2] * m[2, 1]) -
-           m[0, 1] * (m[1, 0] * m[2, 2] - m[1, 2] * m[2, 0]) +
-           m[0, 2] * (m[1, 0] * m[2, 1] - m[1, 1] * m[2, 0]);
-}
-
-// 行列式计算 (4x4)
-template <typename T, bool is_col_major_>
-constexpr T determinant(const mat<T, 4, 4, is_col_major_>& m) {
-    return m[0, 0] * determinant(mat<T, 3, 3, is_col_major_>{
-                         {m[1, 1], m[1, 2], m[1, 3]},
-                         {m[2, 1], m[2, 2], m[2, 3]},
-                         {m[3, 1], m[3, 2], m[3, 3]}}) -
-           m[0, 1] * determinant(mat<T, 3, 3, is_col_major_>{
-                         {m[1, 0], m[1, 2], m[1, 3]},
-                         {m[2, 0], m[2, 2], m[2, 3]},
-                         {m[3, 0], m[3, 2], m[3, 3]}}) +
-           m[0, 2] * determinant(mat<T, 3, 3, is_col_major_>{
-                         {m[1, 0], m[1, 1], m[1, 3]},
-                         {m[2, 0], m[2, 1], m[2, 3]},
-                         {m[3, 0], m[3, 1], m[3, 3]}}) -
-           m[0, 3] * determinant(mat<T, 3, 3, is_col_major_>{
-                         {m[1, 0], m[1, 1], m[1, 2]},
-                         {m[2, 0], m[2, 1], m[2, 2]},
-                         {m[3, 0], m[3, 1], m[3, 2]}});
-}
-// 行列式计算 (通用尺寸) - 使用高斯消元法
+// 行列式计算 - 委托给成员方法
 template <typename T, size_t size_, bool is_col_major_>
 constexpr T determinant(const mat<T, size_, size_, is_col_major_>& m) {
-    // 复制矩阵以避免修改原矩阵
-    mat<T, size_, size_, is_col_major_> a = m;
-
-    T det = T{1};
-    for (size_t i = 0; i < size_; ++i) {
-        // 寻找主元
-        size_t pivot = i;
-        for (size_t r = i + 1; r < size_; ++r) {
-            if (std::fabs(a[r, i]) > std::fabs(a[pivot, i])) {
-                pivot = r;
-            }
-        }
-
-        // 如果主元为零，矩阵奇异
-        if (a[pivot, i] == T{}) {
-            return T{};
-        }
-
-        // 交换行
-        if (pivot != i) {
-            for (size_t c = i; c < size_; ++c) {
-                std::swap(a[i, c], a[pivot, c]);
-            }
-            det = -det;  // 行交换改变符号
-        }
-
-        // 消元
-        for (size_t r = i + 1; r < size_; ++r) {
-            if (a[r, i] == T{}) continue;
-            T factor = a[r, i] / a[i, i];
-            for (size_t c = i; c < size_; ++c) {
-                a[r, c] -= factor * a[i, c];
-            }
-        }
-    }
-
-    // 计算对角线乘积
-    for (size_t i = 0; i < size_; ++i) {
-        det *= a[i, i];
-    }
-
-    return det;
+    return m.determinant();
 }
 
 // 矩阵求逆 (2x2)

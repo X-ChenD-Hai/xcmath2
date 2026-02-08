@@ -26,6 +26,18 @@ constexpr auto trace() const noexcept {
 }
 METHOD_DEF_END()
 
+// determinant_method - base template (generic Gaussian elimination for any
+// size)
+METHOD_DEF_BEGIN(determinant_method)
+constexpr auto determinant() const noexcept {
+    using result_type = std::decay_t<decltype(const_self[0, 0])>;
+    constexpr size_t size_ = sizeof(Derived) == 0 ? 0 : 0;  // placeholder
+    static_assert(sizeof(Derived) == 0,
+                  "determinant() requires matrix specialization");
+    return result_type{};
+}
+METHOD_DEF_END()
+
 METHOD_DEF_BEGIN(transpose_method)
 constexpr auto transpose() const noexcept {
     using value_type = std::decay_t<decltype(const_self[0, 0])>;
@@ -84,7 +96,8 @@ constexpr auto inverse() const noexcept {
                 }
                 value_type cofactor =
                     xcmath::determinant(minor) * ((i + j) % 2 == 0 ? 1 : -1);
-                result[j, i] = cofactor / det;  // Adjugate = transpose of cofactor
+                result[j, i] =
+                    cofactor / det;  // Adjugate = transpose of cofactor
             }
         }
     }
@@ -111,7 +124,8 @@ constexpr auto inverse() const noexcept {
                 }
                 value_type cofactor =
                     xcmath::determinant(minor) * ((i + j) % 2 == 0 ? 1 : -1);
-                result[j, i] = cofactor / det;  // Adjugate = transpose of cofactor
+                result[j, i] =
+                    cofactor / det;  // Adjugate = transpose of cofactor
             }
         }
     }
