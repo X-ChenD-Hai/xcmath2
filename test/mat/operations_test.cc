@@ -130,3 +130,88 @@ TEST(MatrixOperations, ScalarMatrixMultiplication) {
     EXPECT_FLOAT_EQ(result[1][0], 6.0f);
     EXPECT_FLOAT_EQ(result[1][1], 8.0f);
 }
+
+// Generic determinant tests for larger matrices
+TEST(MatrixOperations, Determinant5x5) {
+    // Diagonal matrix with values 1, 2, 3, 4, 5
+    mat<float, 5, 5> m;
+    for (size_t i = 0; i < 5; ++i) {
+        for (size_t j = 0; j < 5; ++j) {
+            m[i, j] = (i == j) ? static_cast<float>(i + 1) : 0.0f;
+        }
+    }
+    float result = determinant(m);
+    EXPECT_FLOAT_EQ(result, 120.0f);  // 1*2*3*4*5
+}
+
+TEST(MatrixOperations, Determinant5x5NonSingular) {
+    mat<float, 5, 5> m = {{3, 2, 0, 1, 4},
+                           {2, 3, 1, 0, 1},
+                           {4, 1, 2, 3, 2},
+                           {1, 2, 3, 2, 1},
+                           {0, 1, 1, 2, 3}};
+    float result = determinant(m);
+    EXPECT_FLOAT_EQ(result, -56.0f);
+}
+
+TEST(MatrixOperations, Determinant6x6UpperTriangular) {
+    // Upper triangular matrix with 2s on diagonal
+    mat<float, 6, 6> m;
+    for (size_t i = 0; i < 6; ++i) {
+        for (size_t j = 0; j < 6; ++j) {
+            if (i <= j) {
+                m[i, j] = 2.0f;
+            } else {
+                m[i, j] = 0.0f;
+            }
+        }
+    }
+    float result = determinant(m);
+    EXPECT_FLOAT_EQ(result, 64.0f);  // 2^6 = 64
+}
+
+TEST(MatrixOperations, Determinant6x6NonSingular) {
+    mat<float, 6, 6> m = {{1, 2, 3, 4, 5, 6},
+                           {0, 1, 2, 3, 4, 5},
+                           {0, 0, 1, 2, 3, 4},
+                           {0, 0, 0, 1, 2, 3},
+                           {0, 0, 0, 0, 1, 2},
+                           {0, 0, 0, 0, 0, 1}};
+    float result = determinant(m);
+    EXPECT_FLOAT_EQ(result, 1.0f);  // Upper triangular with 1s on diagonal
+}
+
+TEST(MatrixOperations, DeterminantWithRowSwap) {
+    // This matrix has a row that should trigger row swapping
+    mat<float, 4, 4> m = {{0, 1, 2, 3},
+                           {1, 2, 3, 4},
+                           {2, 3, 4, 5},
+                           {3, 4, 5, 6}};
+    float result = determinant(m);
+    EXPECT_FLOAT_EQ(result, 0.0f);  // Rows are linearly dependent
+}
+
+TEST(MatrixOperations, DeterminantNegative) {
+    // Matrix with negative determinant
+    mat<float, 3, 3> m = {{2, 1, -1},
+                           {-3, -1, 2},
+                           {-2, 1, 2}};
+    float result = determinant(m);
+    EXPECT_FLOAT_EQ(result, -1.0f);
+}
+
+TEST(MatrixOperations, DeterminantDouble) {
+    mat<double, 3, 3> m = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+    double result = determinant(m);
+    EXPECT_DOUBLE_EQ(result, 0.0);
+}
+
+TEST(MatrixOperations, DeterminantIdentity) {
+    mat<float, 5, 5> m = {{1, 0, 0, 0, 0},
+                           {0, 1, 0, 0, 0},
+                           {0, 0, 1, 0, 0},
+                           {0, 0, 0, 1, 0},
+                           {0, 0, 0, 0, 1}};
+    float result = determinant(m);
+    EXPECT_FLOAT_EQ(result, 1.0f);
+}

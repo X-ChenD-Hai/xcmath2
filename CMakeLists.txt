@@ -7,8 +7,10 @@ include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 option(BUILD_TESTING "Build tests" ON)
 option(XCMATH_BUILD_SHARED_LIBS "Build dynamic library" OFF)
+
 add_subdirectory(xcmath)
 add_subdirectory(examples/compute_backend)
+
 if(BUILD_TESTING)
     enable_testing()
     add_subdirectory(test)

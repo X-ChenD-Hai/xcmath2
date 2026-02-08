@@ -1,5 +1,6 @@
 #pragma once
 #include <cmath>
+#include <cstddef>
 
 #include "./alias.hpp"
 
@@ -172,6 +173,52 @@ constexpr T determinant(const mat<T, 4, 4, is_col_major_>& m) {
                          {m[1, 0], m[1, 1], m[1, 2]},
                          {m[2, 0], m[2, 1], m[2, 2]},
                          {m[3, 0], m[3, 1], m[3, 2]}});
+}
+// 行列式计算 (通用尺寸) - 使用高斯消元法
+template <typename T, size_t size_, bool is_col_major_>
+constexpr T determinant(const mat<T, size_, size_, is_col_major_>& m) {
+    // 复制矩阵以避免修改原矩阵
+    mat<T, size_, size_, is_col_major_> a = m;
+
+    T det = T{1};
+    for (size_t i = 0; i < size_; ++i) {
+        // 寻找主元
+        size_t pivot = i;
+        for (size_t r = i + 1; r < size_; ++r) {
+            if (std::fabs(a[r, i]) > std::fabs(a[pivot, i])) {
+                pivot = r;
+            }
+        }
+
+        // 如果主元为零，矩阵奇异
+        if (a[pivot, i] == T{}) {
+            return T{};
+        }
+
+        // 交换行
+        if (pivot != i) {
+            for (size_t c = i; c < size_; ++c) {
+                std::swap(a[i, c], a[pivot, c]);
+            }
+            det = -det;  // 行交换改变符号
+        }
+
+        // 消元
+        for (size_t r = i + 1; r < size_; ++r) {
+            if (a[r, i] == T{}) continue;
+            T factor = a[r, i] / a[i, i];
+            for (size_t c = i; c < size_; ++c) {
+                a[r, c] -= factor * a[i, c];
+            }
+        }
+    }
+
+    // 计算对角线乘积
+    for (size_t i = 0; i < size_; ++i) {
+        det *= a[i, i];
+    }
+
+    return det;
 }
 
 // 矩阵求逆 (2x2)

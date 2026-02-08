@@ -1,4 +1,4 @@
-find_package(GTest REQUIRED CONFIG)
+find_package(GTest CONFIG)
 enable_testing()
 set(TEST_LIBS
     xcmath
@@ -30,6 +30,7 @@ add_test(
 add_executable(mat_test)
 
 target_sources(mat_test PRIVATE
+    mat/operations_test.cc
     mat/operations_row_major_test.cc
     mat/operations_col_major_test.cc
 )
