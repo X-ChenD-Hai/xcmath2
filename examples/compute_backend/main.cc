@@ -1,4 +1,5 @@
-// #define ENABLE_COL_MAJOR_MAT
+#include <type_traits>
+#define ENABLE_COL_MAJOR_MAT
 #include <cassert>
 #include <iostream>
 #include <ostream>
@@ -6,10 +7,12 @@
 #include <xcmath/serialize.hpp>
 #include <xcmath/vec.hpp>
 
+#include "xcmath/methods.hpp"
+
 using namespace xcmath;
 
 auto get_m() {
-    mat<float, 2, 3, false> a{};
+    mat3f a{};
 
     a[0][0] = 1;
     a[0][1] = 2;
@@ -30,6 +33,20 @@ int main() {
     std::cout << v2.cross(v1).module() << std::endl;
     std::cout << v2.cross(v1).sign() << std::endl;
     std::cout << m.trace() << std::endl;
+
+    auto m1 = get_m();
+
+    using vec3f_view = vec_view<float, 3, 3>;
+    vec3f_view av = m1[0];
+    static_assert(std::is_base_of_v<all_method<EmptyBase, vec3f>, vec3f>, "");
+    // static_assert(
+    //     std::is_base_of_v<size_method<EmptyBase, vec3f_view>, vec3f_view>,
+    //     "");
+    // auto m21 = av.move();
+    auto m22 = av.all();
+    // av.module();
+    // std::cout << m1[0] << std::endl;
+    // std::cout << av << std::endl;
 
     return 0;
 }

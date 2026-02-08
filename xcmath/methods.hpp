@@ -22,6 +22,15 @@
 #define METHOD_DEF_END() \
     }                    \
     ;
+
+#define IMPL_METHOD_BEGIN(name, ext_template_params...) \
+    template <typename Base, ext_template_params>       \
+        struct name < Base,
+#define IMPL_METHOD_FOR(cls...) cls > : Base {
+#define IMPL_METHOD_END() \
+    }                     \
+    ;
+
 namespace xcmath {
 
 // Helper traits to extract matrix dimensions from the method recorder chain
@@ -70,6 +79,12 @@ static inline constexpr auto unit() noexcept {
 }
 METHOD_DEF_END()
 
+METHOD_DEF_BEGIN(clone_method)
+inline constexpr auto clone() const noexcept { return const_self; }
+METHOD_DEF_END()
+METHOD_DEF_BEGIN(move_method)
+inline constexpr decltype(auto) move() noexcept { return std::move(self); }
+METHOD_DEF_END()
 METHOD_DEF_BEGIN(module_method)
 inline constexpr auto module() const noexcept {
     require_method(size_method);
@@ -83,7 +98,10 @@ inline constexpr auto module() const noexcept {
 METHOD_DEF_END()
 METHOD_DEF_BEGIN(normalize_method)
 inline constexpr auto normalize() const noexcept {
-    auto normalized = const_self;
+    require_method(clone_method);
+    require_method(module_method);
+    require_method(size_method);
+    auto normalized = const_self.clone();
     auto module = normalized.module();
     for (size_t i = 0; i < const_self.size(); ++i) {
         normalized[i] /= module;
@@ -109,7 +127,9 @@ METHOD_DEF_END()
 METHOD_DEF_BEGIN(distance_method)
 inline constexpr auto distance(const Derived& other) const noexcept {
     require_method(module_method);
-    auto diff = const_self;
+    require_method(size_method);
+    require_method(clone_method);
+    auto diff = const_self.clone();
     for (size_t i = 0; i < const_self.size(); ++i) {
         diff[i] -= other[i];
     }
@@ -159,7 +179,7 @@ inline constexpr auto project(const Derived& onto) const noexcept {
         onto_module_sq += onto[i] * onto[i];
     }
     auto scalar = const_self.dot(onto) / onto_module_sq;
-    auto result = const_self;
+    auto result = const_self.clone();
     for (size_t i = 0; i < result.size(); ++i) {
         result[i] = onto[i] * scalar;
     }
@@ -171,7 +191,7 @@ METHOD_DEF_BEGIN(reflect_method)
 inline constexpr auto reflect(const Derived& normal) const noexcept {
     require_method(dot_method);
     auto dot_prod = const_self.dot(normal);
-    auto result = const_self;
+    auto result = const_self.clone();
     for (size_t i = 0; i < result.size(); ++i) {
         result[i] = result[i] -
                     number_meta::number_properties<decltype(dot_prod)>::unit *
@@ -194,7 +214,7 @@ inline constexpr auto refract(const Derived& normal, auto eta) const noexcept {
         return Derived{number_meta::number_properties<
             std::decay_t<decltype(const_self[0])>>::zero};
     }
-    auto result = const_self;
+    auto result = const_self.clone();
     for (size_t i = 0; i < result.size(); ++i) {
         result[i] = eta * const_self[i] -
                     (eta * dot_prod + xcmath::sqrt(k)) * normal[i];
@@ -207,7 +227,7 @@ METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(abs_method)
 inline constexpr auto abs() const noexcept {
-    auto result = const_self;
+    auto result = const_self.clone();
     using value_type = std::decay_t<decltype(result[0])>;
     for (size_t i = 0; i < const_self.size(); ++i) {
         result[i] = result[i] < number_meta::number_properties<value_type>::zero
@@ -220,7 +240,7 @@ METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(min_method)
 inline constexpr auto min(const Derived& other) const noexcept {
-    auto result = const_self;
+    auto result = const_self.clone();
     for (size_t i = 0; i < const_self.size(); ++i) {
         result[i] = result[i] < other[i] ? result[i] : other[i];
     }
@@ -230,7 +250,7 @@ METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(max_method)
 inline constexpr auto max(const Derived& other) const noexcept {
-    auto result = const_self;
+    auto result = const_self.clone();
     for (size_t i = 0; i < const_self.size(); ++i) {
         result[i] = result[i] > other[i] ? result[i] : other[i];
     }
@@ -241,7 +261,7 @@ METHOD_DEF_END()
 METHOD_DEF_BEGIN(clamp_method)
 inline constexpr auto clamp(const Derived& min_vec,
                             const Derived& max_vec) const noexcept {
-    auto result = const_self;
+    auto result = const_self.clone();
     for (size_t i = 0; i < const_self.size(); ++i) {
         result[i] = result[i] < min_vec[i]   ? min_vec[i]
                     : result[i] > max_vec[i] ? max_vec[i]
@@ -253,7 +273,7 @@ METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(floor_method)
 inline constexpr auto floor() const noexcept {
-    auto result = const_self;
+    auto result = const_self.clone();
     for (size_t i = 0; i < const_self.size(); ++i) {
         result[i] = xcmath::floor(result[i]);
     }
@@ -263,7 +283,7 @@ METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(ceil_method)
 inline constexpr auto ceil() const noexcept {
-    auto result = const_self;
+    auto result = const_self.clone();
     for (size_t i = 0; i < const_self.size(); ++i) {
         result[i] = xcmath::ceil(result[i]);
     }
@@ -273,7 +293,7 @@ METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(round_method)
 inline constexpr auto round() const noexcept {
-    auto result = const_self;
+    auto result = const_self.clone();
     for (size_t i = 0; i < const_self.size(); ++i) {
         result[i] = xcmath::round(result[i]);
     }
@@ -283,7 +303,7 @@ METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(fract_method)
 inline constexpr auto fract() const noexcept {
-    auto result = const_self;
+    auto result = const_self.clone();
     for (size_t i = 0; i < const_self.size(); ++i) {
         result[i] = result[i] - xcmath::floor(result[i]);
     }
@@ -293,7 +313,7 @@ METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(sign_method)
 inline constexpr auto sign() const noexcept {
-    auto result = const_self;
+    auto result = const_self.clone();
     using value_type = std::decay_t<decltype(result[0])>;
     for (size_t i = 0; i < const_self.size(); ++i) {
         result[i] =
@@ -323,7 +343,7 @@ METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(less_than_method)
 inline constexpr Derived less_than(const Derived& other) const noexcept {
-    auto result = const_self;
+    auto result = const_self.clone();
     for (size_t i = 0; i < const_self.size(); ++i) {
         result[i] = const_self[i] < other[i];
     }
@@ -333,7 +353,7 @@ METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(greater_than_method)
 inline constexpr Derived greater_than(const Derived& other) const noexcept {
-    auto result = const_self;
+    auto result = const_self.clone();
     for (size_t i = 0; i < const_self.size(); ++i) {
         result[i] = const_self[i] > other[i];
     }

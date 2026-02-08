@@ -11,13 +11,14 @@
 namespace xcmath {
 template <typename Derived, typename T, size_t size_>
 using vec_impl_methods = method_recorder<
-    point_accesser_sized<size_>::template type, size_method,
-    zero_factory_method, unit_factory_method, module_method, normalize_method,
-    dot_method, distance_method, distance_squared_method, angle_method,
-    project_method, reflect_method, refract_method, cross_product_method,
-    abs_method, min_method, max_method, clamp_method, floor_method, ceil_method,
-    round_method, fract_method, sign_method, equal_method, less_than_method,
-    greater_than_method, any_method, all_method>;
+    point_accesser_sized<size_>::template type, size_method, clone_method,
+    move_method, zero_factory_method, unit_factory_method, module_method,
+    normalize_method, dot_method, distance_method, distance_squared_method,
+    angle_method, project_method, reflect_method, refract_method,
+    cross_product_method, abs_method, min_method, max_method, clamp_method,
+    floor_method, ceil_method, round_method, fract_method, sign_method,
+    equal_method, less_than_method, greater_than_method, any_method,
+    all_method>;
 namespace details {
 template <typename Derived, typename T, size_t size_, typename method_recorder,
           template <typename, typename> class... ext_methods>
@@ -51,8 +52,7 @@ struct vec_properties<T, std::void_t<typename T::data_type>> {
 };
 template <typename T, size_t size_, size_t stride_>
 struct const_vec_view
-    : impl_methods_helper<vec_view<T, size_, stride_>,
-                          point_accesser_sized<size_>::template type> {
+    : details::base_of_vec_impl<const_vec_view<T, size_, stride_>, T, size_> {
     static inline constexpr size_t size() noexcept { return size_; }
 
     constexpr const_vec_view(const T* data) : ptr_(data) {}
@@ -67,8 +67,7 @@ struct const_vec_view
 
 template <typename T, size_t size_, size_t stride_>
 struct vec_view
-    : impl_methods_helper<vec_view<T, size_, stride_>,
-                          point_accesser_sized<size_>::template type> {
+    : details::base_of_vec_impl<const_vec_view<T, size_, stride_>, T, size_> {
     static inline constexpr size_t size() noexcept { return size_; }
 
     constexpr vec_view(T* data) : ptr_(data) {}
@@ -95,6 +94,30 @@ struct vec_view
    protected:
     T* ptr_;
 };
+
+IMPL_METHOD_BEGIN(clone_method, typename T, size_t size_, size_t stride_)
+IMPL_METHOD_FOR(const_vec_view<T, size_, stride_>)
+inline constexpr auto clone() const noexcept {
+    using Self = const const_vec_view<T, size_, stride_>;
+    vec<T, size_> result;
+    for (size_t i = 0; i < size_; ++i) {
+        result[i] = static_cast<Self*>(this)->operator[](i);
+    }
+    return result;
+}
+IMPL_METHOD_END()
+
+IMPL_METHOD_BEGIN(clamp_method, typename T, size_t size_, size_t stride_)
+IMPL_METHOD_FOR(vec_view<T, size_, stride_>)
+inline constexpr auto clone() const noexcept {
+    using Self = const vec_view<T, size_, stride_>;
+    vec<T, size_> result;
+    for (size_t i = 0; i < size_; ++i) {
+        result[i] = static_cast<Self*>(this)->operator[](i);
+    }
+    return result;
+}
+IMPL_METHOD_END()
 
 template <typename Derived, typename T, size_t size_,
           template <typename, typename> class... ext_methods>
@@ -144,27 +167,28 @@ class vec : public vec_impl<vec<T, size_>, T, size_> {
     using vec_impl<vec<T, size_>, T, size_>::vec_impl;
 };
 
-template <typename Base, typename T, size_t size_>
-struct size_method<Base, vec<T, size_>> : Base {
-    inline constexpr size_t size() const noexcept { return size_; }
-};
-template <typename Base, typename T, size_t size_>
-struct unit_factory_method<Base, vec<T, size_>> : Base {
-    inline static constexpr size_t unit() noexcept {
-        static_assert(false, "vec not supported unit_factory_method");
-    }
-};
+IMPL_METHOD_BEGIN(size_method, typename T, size_t size_)
+IMPL_METHOD_FOR(vec<T, size_>)
+inline constexpr size_t size() const noexcept { return size_; }
+IMPL_METHOD_END()
+
+IMPL_METHOD_BEGIN(unit_factory_method, typename T, size_t size_)
+IMPL_METHOD_FOR(vec<T, size_>)
+inline static constexpr size_t unit() noexcept {
+    static_assert(false, "vec not supported unit_factory_method");
+}
+IMPL_METHOD_END()
 
 // Cross product specialization for vec3
-template <typename Base, typename T>
-struct cross_product_method<Base, vec<T, 3>> : Base {
-    inline constexpr vec<T, 3> cross(const vec<T, 3>& other) const noexcept {
-        const vec<T, 3>& self = *static_cast<const vec<T, 3>*>(this);
-        return vec<T, 3>{self[1] * other[2] - self[2] * other[1],
-                         self[2] * other[0] - self[0] * other[2],
-                         self[0] * other[1] - self[1] * other[0]};
-    }
-};
+IMPL_METHOD_BEGIN(cross_product_method, typename T)
+IMPL_METHOD_FOR(vec<T, 3>)
+inline constexpr vec<T, 3> cross(const vec<T, 3>& other) const noexcept {
+    const vec<T, 3>& self = *static_cast<const vec<T, 3>*>(this);
+    return vec<T, 3>{self[1] * other[2] - self[2] * other[1],
+                     self[2] * other[0] - self[0] * other[2],
+                     self[0] * other[1] - self[1] * other[0]};
+}
+IMPL_METHOD_END()
 
 namespace number_meta {
 template <typename T, size_t size_>
