@@ -41,9 +41,9 @@ METHOD_DEF_END()
 METHOD_DEF_BEGIN(transpose_method)
 constexpr auto transpose() const noexcept {
     using value_type = std::decay_t<decltype(const_self[0, 0])>;
-    constexpr size_t row = mat_dims<Derived>::rows;
-    constexpr size_t col = mat_dims<Derived>::cols;
-    constexpr bool is_col_major = mat_dims<Derived>::is_col_major;
+    constexpr size_t row = traits::mat_dims<Derived>::rows;
+    constexpr size_t col = traits::mat_dims<Derived>::cols;
+    constexpr bool is_col_major = traits::mat_dims<Derived>::is_col_major;
     mat<value_type, col, row, !is_col_major> result;
     for (size_t i = 0; i < row; ++i) {
         for (size_t j = 0; j < col; ++j) {
@@ -57,9 +57,9 @@ METHOD_DEF_END()
 METHOD_DEF_BEGIN(inverse_method)
 constexpr auto inverse() const noexcept {
     using value_type = std::decay_t<decltype(const_self[0, 0])>;
-    constexpr size_t row = mat_dims<Derived>::rows;
-    constexpr size_t col = mat_dims<Derived>::cols;
-    constexpr bool is_col_major = mat_dims<Derived>::is_col_major;
+    constexpr size_t row = traits::mat_dims<Derived>::rows;
+    constexpr size_t col = traits::mat_dims<Derived>::cols;
+    constexpr bool is_col_major = traits::mat_dims<Derived>::is_col_major;
     static_assert(row == col, "inverse() only valid for square matrices");
 
     mat<value_type, row, row, is_col_major> result;

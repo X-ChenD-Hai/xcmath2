@@ -7,6 +7,7 @@
 #include "./alias.hpp"  // IWYU pragma: keep
 #include "./functions.hpp"
 #include "./number_meta.hpp"
+#include "traits.hpp"
 
 #define self (*static_cast<Derived*>(this))
 #define const_self (*static_cast<const Derived*>(this))
@@ -26,24 +27,15 @@
 #define IMPL_METHOD_BEGIN(name, ext_template_params...) \
     template <typename Base, ext_template_params>       \
         struct name < Base,
-#define IMPL_METHOD_FOR(cls...) cls > : Base {
+#define IMPL_METHOD_FOR(cls...) \
+    cls > : Base {              \
+        using Self = cls;       \
+        using ConstSelf = const std::remove_const_t<Self>;
 #define IMPL_METHOD_END() \
     }                     \
     ;
 
 namespace xcmath {
-
-// Helper traits to extract matrix dimensions from the method recorder chain
-template <typename T>
-struct mat_dims_from_base {
-    static constexpr size_t rows = 0;
-    static constexpr size_t cols = 0;
-    static constexpr bool is_col_major = false;
-};
-
-// Specialization that extracts dims from any type
-template <typename T>
-struct mat_dims : mat_dims_from_base<T> {};
 
 template <template <typename, typename> class... methods>
 struct method_recorder {};
@@ -113,7 +105,9 @@ METHOD_DEF_END()
 // Vector operations
 
 METHOD_DEF_BEGIN(dot_method)
-inline constexpr auto dot(const Derived& other) const noexcept {
+template <typename T>
+    requires(traits::length_eq<Derived, T>)
+inline constexpr auto dot(const T& other) const noexcept {
     require_method(size_method);
     auto result = number_meta::number_properties<
         std::decay_t<decltype(const_self[0] * other[0])>>::zero;
@@ -125,7 +119,9 @@ inline constexpr auto dot(const Derived& other) const noexcept {
 METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(distance_method)
-inline constexpr auto distance(const Derived& other) const noexcept {
+template <typename T>
+    requires(traits::length_eq<Derived, T>)
+inline constexpr auto distance(const T& other) const noexcept {
     require_method(module_method);
     require_method(size_method);
     require_method(clone_method);
@@ -138,7 +134,9 @@ inline constexpr auto distance(const Derived& other) const noexcept {
 METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(distance_squared_method)
-inline constexpr auto distance_squared(const Derived& other) const noexcept {
+template <typename T>
+    requires(traits::length_eq<Derived, T>)
+inline constexpr auto distance_squared(const T& other) const noexcept {
     auto result = number_meta::number_properties<
         std::decay_t<decltype((const_self[0] - other[0]) *
                               (const_self[0] - other[0]))>>::zero;
@@ -151,7 +149,9 @@ inline constexpr auto distance_squared(const Derived& other) const noexcept {
 METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(angle_method)
-inline constexpr auto angle(const Derived& other) const noexcept {
+template <typename T>
+    requires(traits::length_eq<Derived, T>)
+inline constexpr auto angle(const T& other) const noexcept {
     require_method(dot_method);
     require_method(module_method);
     auto dot_product = const_self.dot(other);
@@ -162,16 +162,21 @@ METHOD_DEF_END()
 
 // Cross product for vec3 - base template (not usable)
 METHOD_DEF_BEGIN(cross_product_method)
-inline constexpr auto cross(const Derived& other) const noexcept {
-    static_assert(sizeof(Derived) == 0, "cross() only valid for vec3");
-    using item_type =
-        std::decay_t<decltype((*static_cast<const Derived*>(this))[0])>;
-    return Derived{number_meta::number_properties<item_type>::zero};
+template <typename T>
+    requires(traits::length_eq<Derived, T> &&
+             traits::length_properties<Derived>::length == 3)
+inline constexpr auto cross(const T& other) const noexcept {
+    return decltype(const_self.clone()){
+        const_self[1] * other[2] - const_self[2] * other[1],
+        const_self[2] * other[0] - const_self[0] * other[2],
+        const_self[0] * other[1] - const_self[1] * other[0]};
 }
 METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(project_method)
-inline constexpr auto project(const Derived& onto) const noexcept {
+template <typename T>
+    requires(traits::length_eq<Derived, T>)
+inline constexpr auto project(const T& onto) const noexcept {
     require_method(dot_method);
     auto onto_module_sq = number_meta::number_properties<
         std::decay_t<decltype(onto[0] * onto[0])>>::zero;
@@ -188,7 +193,9 @@ inline constexpr auto project(const Derived& onto) const noexcept {
 METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(reflect_method)
-inline constexpr auto reflect(const Derived& normal) const noexcept {
+template <typename T>
+    requires(traits::length_eq<Derived, T>)
+inline constexpr auto reflect(const T& normal) const noexcept {
     require_method(dot_method);
     auto dot_prod = const_self.dot(normal);
     auto result = const_self.clone();
@@ -202,7 +209,9 @@ inline constexpr auto reflect(const Derived& normal) const noexcept {
 METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(refract_method)
-inline constexpr auto refract(const Derived& normal, auto eta) const noexcept {
+template <typename T>
+    requires(traits::length_eq<Derived, T>)
+inline constexpr auto refract(const T& normal, auto eta) const noexcept {
     require_method(dot_method);
     require_method(module_method);
     auto dot_prod = const_self.dot(normal);
@@ -239,7 +248,9 @@ inline constexpr auto abs() const noexcept {
 METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(min_method)
-inline constexpr auto min(const Derived& other) const noexcept {
+template <typename T>
+    requires(traits::length_eq<Derived, T>)
+inline constexpr auto min(const T& other) const noexcept {
     auto result = const_self.clone();
     for (size_t i = 0; i < const_self.size(); ++i) {
         result[i] = result[i] < other[i] ? result[i] : other[i];
@@ -249,7 +260,9 @@ inline constexpr auto min(const Derived& other) const noexcept {
 METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(max_method)
-inline constexpr auto max(const Derived& other) const noexcept {
+template <typename T>
+    requires(traits::length_eq<Derived, T>)
+inline constexpr auto max(const T& other) const noexcept {
     auto result = const_self.clone();
     for (size_t i = 0; i < const_self.size(); ++i) {
         result[i] = result[i] > other[i] ? result[i] : other[i];
@@ -259,8 +272,9 @@ inline constexpr auto max(const Derived& other) const noexcept {
 METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(clamp_method)
-inline constexpr auto clamp(const Derived& min_vec,
-                            const Derived& max_vec) const noexcept {
+template <typename T, typename U>
+    requires(traits::length_eq<Derived, T> && traits::length_eq<Derived, U>)
+inline constexpr auto clamp(const T& min_vec, const U& max_vec) const noexcept {
     auto result = const_self.clone();
     for (size_t i = 0; i < const_self.size(); ++i) {
         result[i] = result[i] < min_vec[i]   ? min_vec[i]
@@ -330,7 +344,9 @@ METHOD_DEF_END()
 // Comparison operations
 
 METHOD_DEF_BEGIN(equal_method)
-inline constexpr bool equal(const Derived& other, auto epsilon) const noexcept {
+template <typename T>
+    requires(traits::length_eq<Derived, T>)
+inline constexpr bool equal(const T& other, auto epsilon) const noexcept {
     require_method(size_method);
     for (size_t i = 0; i < const_self.size(); ++i) {
         if (xcmath::fabs(const_self[i] - other[i]) > epsilon) {
@@ -342,7 +358,9 @@ inline constexpr bool equal(const Derived& other, auto epsilon) const noexcept {
 METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(less_than_method)
-inline constexpr Derived less_than(const Derived& other) const noexcept {
+template <typename T>
+    requires(traits::length_eq<Derived, T>)
+inline constexpr auto less_than(const T& other) const noexcept {
     auto result = const_self.clone();
     for (size_t i = 0; i < const_self.size(); ++i) {
         result[i] = const_self[i] < other[i];
@@ -352,7 +370,9 @@ inline constexpr Derived less_than(const Derived& other) const noexcept {
 METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(greater_than_method)
-inline constexpr Derived greater_than(const Derived& other) const noexcept {
+template <typename T>
+    requires(traits::length_eq<Derived, T>)
+inline constexpr auto greater_than(const T& other) const noexcept {
     auto result = const_self.clone();
     for (size_t i = 0; i < const_self.size(); ++i) {
         result[i] = const_self[i] > other[i];

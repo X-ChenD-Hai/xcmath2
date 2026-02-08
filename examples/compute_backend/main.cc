@@ -45,7 +45,8 @@ int main() {
     // auto m21 = av.move();
     auto m22 = av.all();
     // av.module();
-    // std::cout << m1[0] << std::endl;
+    auto data = m1[0].cross(m1[1]).cross(m[2].clone());
+    std::cout << data << std::endl;
     // std::cout << av << std::endl;
 
     return 0;

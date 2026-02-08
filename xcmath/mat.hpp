@@ -249,11 +249,3 @@ mat<T, row_, col_, false>::operator=(const mat<T, row_, col_, true>& other) {
 }
 
 }  // namespace xcmath
-
-// Specialize mat_dims for all matrix types
-template <typename T, size_t row_, size_t col_, bool is_col_major_>
-struct xcmath::mat_dims<xcmath::mat<T, row_, col_, is_col_major_>> {
-    static constexpr size_t rows = row_;
-    static constexpr size_t cols = col_;
-    static constexpr bool is_col_major = is_col_major_;
-};
