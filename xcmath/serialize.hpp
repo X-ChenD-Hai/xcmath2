@@ -1,15 +1,27 @@
 #pragma once
 #include <cstddef>
 #include <ostream>
+#include <type_traits>
 
 #include "./alias.hpp"
+#include "./functions.hpp"
+#include "./number_meta.hpp"
 
 template <typename T, size_t size_, size_t stride_>
 std::ostream& operator<<(std::ostream& out,
                          const xcmath::const_vec_view<T, size_, stride_> v) {
     out << "[";
     for (size_t i = 0; i < size_; ++i) {
-        out << v[i];
+        if constexpr (std::is_floating_point_v<T>) {
+            if (xcmath::abs(v[i]) <
+                xcmath::number_meta::constants_set<T>::EPSILON) {
+                out << 0.0;
+            } else {
+                out << v[i];
+            }
+        } else {
+            out << v[i];
+        }
         if (i < size_ - 1) {
             out << ", ";
         }

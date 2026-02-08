@@ -6,25 +6,37 @@
 #include "./mat_methods.hpp"
 #include "./vec.hpp"
 #include "methods.hpp"
+#include "traits.hpp"
 
 namespace xcmath {
 using comman_mat_ext_methods =
     method_recorder<trace_method, determinant_method, transpose_method,
                     inverse_method>;
+
+template <typename T, size_t row_, size_t col_, bool is_col_major_>
+struct spical_mat_ext_methods_recorder : impl_spical_mat_ext_methods<> {};
+
 namespace details {
+template <typename T, size_t row_, size_t col_, bool is_col_major_>
+using spical_mat_ext_methods_recorder =
+    dervef_type<spical_mat_ext_methods_recorder<T, row_, col_, is_col_major_>>;
 template <typename T, size_t row_, size_t col_, bool is_col_major_,
-          typename ext_method_recorder = comman_mat_ext_methods>
+          typename ext_method_recorder = comman_mat_ext_methods,
+          typename spical_mat_ext_methods_ =
+              spical_mat_ext_methods_recorder<T, row_, col_, is_col_major_>>
 struct base_of_mat_impl_helper;
 template <typename T, size_t row_, size_t col_, bool is_col_major_,
-          template <typename, typename> typename... ext_methods>
+          template <typename, typename> typename... ext_methods,
+          template <typename, typename> typename... spical_methods>
 struct base_of_mat_impl_helper<T, row_, col_, is_col_major_,
-                               method_recorder<ext_methods...>> {
-    using type =
-        std::conditional_t<is_col_major_,
-                           vec_impl<mat<T, row_, col_, is_col_major_>,
-                                    vec<T, row_>, col_, ext_methods...>,
-                           vec_impl<mat<T, row_, col_, is_col_major_>,
-                                    vec<T, col_>, row_, ext_methods...>>;
+                               method_recorder<ext_methods...>,
+                               method_recorder<spical_methods...>> {
+    using type = std::conditional_t<
+        is_col_major_,
+        vec_impl<mat<T, row_, col_, is_col_major_>, vec<T, row_>, col_,
+                 spical_methods..., ext_methods...>,
+        vec_impl<mat<T, row_, col_, is_col_major_>, vec<T, col_>, row_,
+                 spical_methods..., ext_methods...>>;
 };
 
 template <typename T, size_t row_, size_t col_, bool is_col_major_>

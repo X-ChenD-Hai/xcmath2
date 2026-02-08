@@ -134,7 +134,7 @@ class vec_impl
         }
     }
     constexpr vec_impl() : data_{} {}
-    constexpr vec_impl(std::initializer_list<item_type> init_list) {
+    constexpr vec_impl(const std::initializer_list<item_type>& init_list) {
         assert_index(init_list.size(), size_ + 1);
         size_t i = 0;
         for (auto item : init_list) {

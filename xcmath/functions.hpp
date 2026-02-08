@@ -3,8 +3,20 @@
 #include <cstddef>
 
 #include "./alias.hpp"
+#include "number_meta.hpp"
 
 namespace xcmath {
+
+template <typename T>
+inline constexpr T radians(T degrees) {
+    return degrees * number_meta::constants_set<T>::RADIANS;
+};
+template <typename T>
+inline constexpr T degrees(T radians) {
+    return radians * number_meta::constants_set<T>::DEGREE;
+}
+
+using std::abs;
 using std::acos;
 using std::asin;
 using std::atan;

@@ -4,6 +4,7 @@
 #include "./functions.hpp"
 #include "methods.hpp"
 #include "number_meta.hpp"
+#include "traits.hpp"
 
 #define self (*static_cast<Derived*>(this))
 #define const_self (*static_cast<const Derived*>(this))
@@ -12,7 +13,6 @@
                   "Derived must be derived from " #method)
 
 namespace xcmath {
-
 METHOD_DEF_BEGIN(trace_method)
 constexpr auto trace() const noexcept {
     using result_type = std::decay_t<decltype(const_self[0, 0])>;
@@ -196,6 +196,25 @@ constexpr auto inverse() const noexcept {
 }
 METHOD_DEF_END()
 
+METHOD_DECLARE(rotate_method);
+METHOD_DECLARE(translate_method);
+METHOD_DECLARE(scale_method);
+
+using mat_transform_methods_recorder =
+    method_recorder<rotate_method, translate_method, scale_method>;
+
+template <typename T, bool is_col_major_>
+    requires(std::is_floating_point_v<T>)
+struct spical_mat_ext_methods_recorder<T, 2, 2, is_col_major_>
+    : impl_spical_mat_ext_methods<rotate_method> {};
+template <typename T, bool is_col_major_>
+    requires(std::is_floating_point_v<T>)
+struct spical_mat_ext_methods_recorder<T, 3, 3, is_col_major_>
+    : details::return_type<mat_transform_methods_recorder> {};
+template <typename T, bool is_col_major_>
+    requires(std::is_floating_point_v<T>)
+struct spical_mat_ext_methods_recorder<T, 4, 4, is_col_major_>
+    : details::return_type<mat_transform_methods_recorder> {};
 }  // namespace xcmath
 
 #undef self

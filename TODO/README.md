@@ -5,7 +5,7 @@
 | 模块         | 文件                                   | 状态   |
 | ------------ | -------------------------------------- | ------ |
 | 线性代数基础 | [linear-algebra.md](linear-algebra.md) | 已完成 |
-| 矩阵操作     | [matrix.md](matrix.md)                 | 待开始 |
+| 矩阵操作     | [matrix.md](matrix.md)                 | 已完成 |
 | 变换矩阵     | [transform.md](transform.md)           | 待开始 |
 | 插值函数     | [interpolation.md](interpolation.md)   | 待开始 |
 | 四元数       | [quaternion.md](quaternion.md)         | 待开始 |

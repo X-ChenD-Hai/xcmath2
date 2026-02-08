@@ -9,13 +9,16 @@
 #include "./number_meta.hpp"
 #include "traits.hpp"
 
-#define self (*static_cast<Derived*>(this))
-#define const_self (*static_cast<const Derived*>(this))
+#define self (*static_cast<Self*>(this))
+#define const_self (*static_cast<ConstSelf*>(this))
 #define require_method(method)                     \
     static_assert(is_impl_method<Derived, method>, \
                   "Derived must be derived from " #method)
 
-#define METHOD_INIT using base_type = Base;
+#define METHOD_INIT                     \
+    using base_type = Base;             \
+    using Self = std::decay_t<Derived>; \
+    using ConstSelf = const Self;
 #define METHOD_DEF_BEGIN(name)                 \
     template <typename Base, typename Derived> \
     struct name : Base {                       \
@@ -23,10 +26,17 @@
 #define METHOD_DEF_END() \
     }                    \
     ;
-
+#define METHOD_DECLARE(name) \
+    METHOD_DEF_BEGIN(name)   \
+    }
 #define IMPL_METHOD_BEGIN(name, ext_template_params...) \
     template <typename Base, ext_template_params>       \
         struct name < Base,
+#define IMPL_METHOD_BEGIN_WITH_REQUIRES(name, require_statement, \
+                                        ext_template_params...)  \
+    template <typename Base, ext_template_params>                \
+        requires(require_statement)                              \
+    struct name < Base,
 #define IMPL_METHOD_FOR(cls...) \
     cls > : Base {              \
         using Self = cls;       \
@@ -36,21 +46,6 @@
     ;
 
 namespace xcmath {
-
-template <template <typename, typename> class... methods>
-struct method_recorder {};
-
-template <template <typename, typename> class method, typename recorder>
-static constexpr bool has_method = false;
-
-template <template <typename, typename> class method,
-          template <typename, typename> class... methods>
-static constexpr bool has_method<method, method_recorder<methods...>> =
-    (std::is_same_v<method<void, void>, methods<void, void>> || ...);
-
-template <typename Derived, template <typename, typename> class method>
-static constexpr bool is_impl_method =
-    has_method<method, typename Derived::method_recorder>;
 
 struct EmptyBase {};
 
