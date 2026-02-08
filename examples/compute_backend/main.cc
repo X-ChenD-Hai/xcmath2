@@ -47,7 +47,7 @@ int main() {
     // av.module();
     auto data = m1[0].cross(m1[1]).cross(m[2].clone());
     std::cout << data << std::endl;
-    // std::cout << av << std::endl;
+    std::cout << vec3f::zero() << std::endl;
 
     return 0;
 }

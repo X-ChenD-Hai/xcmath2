@@ -105,13 +105,6 @@ class mat<T, row_, col_, true> : public mat_impl<T, row_, col_, true> {
         return *this;
     }
 };
-IMPL_METHOD_BEGIN(size_method, typename T, size_t row_, size_t col_,
-                  bool is_col_major_)
-IMPL_METHOD_FOR(mat<T, row_, col_, is_col_major_>)
-inline constexpr size_t size() const noexcept {
-    return is_col_major_ ? col_ : row_;
-}
-IMPL_METHOD_END()
 
 // determinant_method specialization for 2x2 matrix
 IMPL_METHOD_BEGIN(determinant_method, typename T, bool is_col_major_)

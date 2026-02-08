@@ -128,11 +128,68 @@ constexpr auto inverse() const noexcept {
                     cofactor / det;  // Adjugate = transpose of cofactor
             }
         }
-    }
-    // Generic size inverse using Gaussian elimination
-    else {
-        constexpr size_t size = row;
-        result = xcmath::inverse(const_self);
+    } else {
+        static_assert(false, "inverse() not implemented for this matrix size");
+        // Derived a = const_self.clone();
+        // Derived aug{};
+        // static constexpr size_t size_ = traits::mat_dims<Derived>::rows;
+        // using T = decltype(const_self[0, 0]);
+        // // Build augmented matrix [A|I]
+        // for (size_t i = 0; i < size_; ++i) {
+        //     for (size_t j = 0; j < size_; ++j) {
+        //         aug[i, j] = a[i, j];
+        //         aug[i, j + size_] = (i == j) ? T{1} : T{};
+        //     }
+        // }
+
+        // // Gaussian elimination with partial pivoting
+        // for (size_t i = 0; i < size_; ++i) {
+        //     // Find pivot
+        //     size_t pivot = i;
+        //     for (size_t r = i + 1; r < size_; ++r) {
+        //         if (std::fabs(aug[r, i]) > std::fabs(aug[pivot, i])) {
+        //             pivot = r;
+        //         }
+        //     }
+
+        //     // Swap rows if needed
+        //     if (pivot != i) {
+        //         for (size_t c = i; c < 2 * size_; ++c) {
+        //             std::swap(aug[i, c], aug[pivot, c]);
+        //         }
+        //     }
+
+        //     // Check for singular matrix
+        //     if (std::fabs(aug[i, i]) == T{}) {
+        //         return const_self.clone();  // Singular matrix, return
+        //         original
+        //     }
+
+        //     // Scale pivot row
+        //     T pivot_val = aug[i, i];
+        //     for (size_t c = i; c < 2 * size_; ++c) {
+        //         aug[i, c] /= pivot_val;
+        //     }
+
+        //     // Eliminate column
+        //     for (size_t r = 0; r < size_; ++r) {
+        //         if (r == i) continue;
+        //         T factor = aug[r, i];
+        //         for (size_t c = i; c < 2 * size_; ++c) {
+        //             aug[r, c] -= factor * aug[i, c];
+        //         }
+        //     }
+        // }
+
+        // // Extract inverse from augmented matrix
+        // Derived result{};
+        // for (size_t i = 0; i < size_; ++i) {
+        //     for (size_t j = 0; j < size_; ++j) {
+        //         result[i, j] = aug[i, j + size_];
+        //     }
+        // }
+
+        // return result;
     }
 
     return result;

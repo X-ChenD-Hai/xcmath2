@@ -56,7 +56,7 @@ struct EmptyBase {};
 
 METHOD_DEF_BEGIN(size_method)
 inline constexpr size_t size() const noexcept {
-    static_assert(false, "size_method not implemented");
+    return traits::length_properties<Derived>::length;
 }
 METHOD_DEF_END()
 

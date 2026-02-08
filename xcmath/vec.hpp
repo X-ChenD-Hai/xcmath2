@@ -28,7 +28,7 @@ template <typename Derived, typename T, size_t size_,
           template <typename, typename> class... ext_methods>
 struct base_of_vec_impl_helper<Derived, T, size_, method_recorder<methods...>,
                                ext_methods...> {
-    using type = impl_methods<Derived, methods..., ext_methods...>;
+    using type = impl_methods<Derived, ext_methods..., methods...>;
 };
 
 template <typename Derived, typename T, size_t size_,
@@ -167,11 +167,6 @@ class vec : public vec_impl<vec<T, size_>, T, size_> {
     using vec_impl<vec<T, size_>, T, size_>::vec_impl;
 };
 
-IMPL_METHOD_BEGIN(size_method, typename T, size_t size_)
-IMPL_METHOD_FOR(vec<T, size_>)
-inline constexpr size_t size() const noexcept { return size_; }
-IMPL_METHOD_END()
-
 IMPL_METHOD_BEGIN(unit_factory_method, typename T, size_t size_)
 IMPL_METHOD_FOR(vec<T, size_>)
 inline static constexpr size_t unit() noexcept {
@@ -179,34 +174,11 @@ inline static constexpr size_t unit() noexcept {
 }
 IMPL_METHOD_END()
 
-// // Cross product specialization for vec3
-// IMPL_METHOD_BEGIN(cross_product_method, typename T)
-// IMPL_METHOD_FOR(vec<T, 3>)
-// inline constexpr vec<T, 3> cross(const vec<T, 3>& other) const noexcept {
-//     ConstSelf& self = *static_cast<ConstSelf*>(this);
-//     return vec<T, 3>{self[1] * other[2] - self[2] * other[1],
-//                      self[2] * other[0] - self[0] * other[2],
-//                      self[0] * other[1] - self[1] * other[0]};
-// }
-// IMPL_METHOD_END()
-// // Cross product specialization for vec3
-// IMPL_METHOD_BEGIN(cross_product_method, typename T, size_t stride_)
-// IMPL_METHOD_FOR(const_vec_view<T, 3, stride_>)
-// inline constexpr vec<T, 3> cross(
-//     const const_vec_view<T, 3, stride_>& other) const noexcept {
-//     ConstSelf& self = *static_cast<ConstSelf*>(this);
-//     return vec<T, 3>{self[1] * other[2] - self[2] * other[1],
-//                      self[2] * other[0] - self[0] * other[2],
-//                      self[0] * other[1] - self[1] * other[0]};
-// }
-// IMPL_METHOD_END()
-
 namespace number_meta {
 template <typename T, size_t size_>
 struct number_properties<vec<T, size_>> {
     using number_type = vec<T, size_>;
-    static constexpr number_type zero = number_type{number_properties<T>::zero};
-    static constexpr number_type unit = number_type{number_properties<T>::unit};
+    static constexpr number_type zero = number_type(number_properties<T>::zero);
 };
 }  // namespace number_meta
 
