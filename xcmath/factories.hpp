@@ -1,7 +1,7 @@
 #pragma once
 #include "./number_meta.hpp"
-#include "./traits.hpp"
-#include "./utility/compile_utils.hpp"
+#include "xcmixin/scope_open.hpp"
+#include "xcmixin/xcmixin.hpp"
 
 namespace xcmath {
 FACTORY_DEF_BEGIN(impl_from_type_to_zero_factory)
@@ -26,6 +26,8 @@ static inline constexpr auto unit() noexcept {
 }
 FACTORY_DEF_END()
 using vec_factory_methods_recorder =
-    method_recorder<unit_factory, zero_factory, impl_from_type_to_zero_factory>;
+    xcmixin::method_recorder<unit_factory, zero_factory,
+                             impl_from_type_to_zero_factory>;
 
 }  // namespace xcmath
+#include "xcmixin/scope_close.hpp"

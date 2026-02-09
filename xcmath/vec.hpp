@@ -9,31 +9,15 @@
 #include "./number_meta.hpp"
 #include "./operators.hpp"
 #include "./point_accesser.hpp"  // IWYU pragma: keep
-
+#include "xcmixin/scope_open.hpp"
+#include "xcmixin/xcmixin.hpp"
 namespace xcmath {
-template <typename Derived, typename T, size_t size_>
+template <typename T, size_t size_>
 using vec_impl_methods =
-    method_recorder<point_accesser_sized<size_>::template type>::
+    xcmixin::method_recorder<point_accesser_sized<size_>::template type>::
         template concat<vec_factory_methods_recorder>::
             template concat<vec_member_methods_recorder>::template concat<
                 vec_double_operator_methods_recorder>;
-namespace details {
-template <typename Derived, typename T, size_t size_, typename method_recorder,
-          template <typename, typename> class... ext_methods>
-struct base_of_vec_impl_helper;
-template <typename Derived, typename T, size_t size_,
-          template <typename, typename> class... methods,
-          template <typename, typename> class... ext_methods>
-struct base_of_vec_impl_helper<Derived, T, size_, method_recorder<methods...>,
-                               ext_methods...>
-    : details::return_type<impl_methods<Derived, ext_methods..., methods...>> {
-};
-
-template <typename Derived, typename T, size_t size_,
-          template <typename, typename> class... ext_methods>
-using base_of_vec_impl = details::dervef_type<base_of_vec_impl_helper<
-    Derived, T, size_, vec_impl_methods<Derived, T, size_>, ext_methods...>>;
-}  // namespace details
 
 template <typename T, typename = void>
 struct vec_properties {
@@ -46,79 +30,11 @@ struct vec_properties<T, std::void_t<typename T::data_type>> {
         1 + vec_properties<typename T::item_type>::dim;
     using data_type = vec_properties<typename T::item_type>::data_type;
 };
-template <typename T, size_t size_, size_t stride_>
-struct const_vec_view
-    : details::base_of_vec_impl<const_vec_view<T, size_, stride_>, T, size_> {
-    static inline constexpr size_t size() noexcept { return size_; }
 
-    constexpr const_vec_view(const T* data) : ptr_(data) {}
-    constexpr const T& operator[](size_t idx) const {
-        assert_index(idx, size_);
-        return ptr_[idx * stride_];
-    }
-
-   protected:
-    const T* ptr_;
-};
-
-template <typename T, size_t size_, size_t stride_>
-struct vec_view
-    : details::base_of_vec_impl<const_vec_view<T, size_, stride_>, T, size_> {
-    static inline constexpr size_t size() noexcept { return size_; }
-
-    constexpr vec_view(T* data) : ptr_(data) {}
-    constexpr T& operator[](size_t idx) {
-        assert_index(idx, size_);
-        return ptr_[idx * stride_];
-    }
-    constexpr const T& operator[](size_t idx) const {
-        assert_index(idx, size_);
-        return ptr_[idx * stride_];
-    }
-
-    constexpr operator const_vec_view<T, size_, stride_>() const {
-        return const_vec_view<T, size_, stride_>(ptr_);
-    }
-    template <size_t ostride_>
-    constexpr vec_view operator=(const_vec_view<T, size_, ostride_> v) {
-        for (size_t i = 0; i < size_; ++i) {
-            ptr_[i * stride_] = v[i];
-        }
-        return *this;
-    }
-
-   protected:
-    T* ptr_;
-};
-
-IMPL_METHOD_BEGIN(clone_method, typename T, size_t size_, size_t stride_)
-IMPL_METHOD_FOR(const_vec_view<T, size_, stride_>)
-inline constexpr auto clone() const noexcept {
-    using Self = const const_vec_view<T, size_, stride_>;
-    vec<T, size_> result;
-    for (size_t i = 0; i < size_; ++i) {
-        result[i] = static_cast<Self*>(this)->operator[](i);
-    }
-    return result;
-}
-IMPL_METHOD_END()
-
-IMPL_METHOD_BEGIN(clamp_method, typename T, size_t size_, size_t stride_)
-IMPL_METHOD_FOR(vec_view<T, size_, stride_>)
-inline constexpr auto clone() const noexcept {
-    using Self = const vec_view<T, size_, stride_>;
-    vec<T, size_> result;
-    for (size_t i = 0; i < size_; ++i) {
-        result[i] = static_cast<Self*>(this)->operator[](i);
-    }
-    return result;
-}
-IMPL_METHOD_END()
-
-template <typename Derived, typename T, size_t size_,
-          template <typename, typename> class... ext_methods>
+template <typename Derived, typename T, size_t size_, typename... ext_recorders>
 class vec_impl
-    : public details::base_of_vec_impl<Derived, T, size_, ext_methods...> {
+    : public xcmixin::impl_methods_recorders<Derived, ext_recorders...,
+                                             vec_impl_methods<T, size_>> {
    public:
     using item_type = T;
     using data_type = vec_properties<T>::data_type;
@@ -169,6 +85,74 @@ class vec_impl
     T data_[size_]{number_meta::number_properties<T>::zero};
 };
 
+template <typename T, size_t size_, size_t stride_>
+struct const_vec_view
+    : xcmixin::impl_methods_recorders<const_vec_view<T, size_, stride_>,
+                                      vec_impl_methods<T, size_>> {
+    static inline constexpr size_t size() noexcept { return size_; }
+
+    constexpr const_vec_view(const T* data) : ptr_(data) {}
+    constexpr const T& operator[](size_t idx) const {
+        assert_index(idx, size_);
+        return ptr_[idx * stride_];
+    }
+
+   protected:
+    const T* ptr_;
+};
+
+template <typename T, size_t size_, size_t stride_>
+struct vec_view : xcmixin::impl_methods_recorders<vec_view<T, size_, stride_>,
+                                                  vec_impl_methods<T, size_>> {
+    static inline constexpr size_t size() noexcept { return size_; }
+
+    constexpr vec_view(T* data) : ptr_(data) {}
+    constexpr T& operator[](size_t idx) {
+        assert_index(idx, size_);
+        return ptr_[idx * stride_];
+    }
+    constexpr const T& operator[](size_t idx) const {
+        assert_index(idx, size_);
+        return ptr_[idx * stride_];
+    }
+
+    constexpr operator const_vec_view<T, size_, stride_>() const {
+        return const_vec_view<T, size_, stride_>(ptr_);
+    }
+    template <size_t ostride_>
+    constexpr vec_view operator=(const_vec_view<T, size_, ostride_> v) {
+        for (size_t i = 0; i < size_; ++i) {
+            ptr_[i * stride_] = v[i];
+        }
+        return *this;
+    }
+
+   protected:
+    T* ptr_;
+};
+
+IMPL_METHOD_BEGIN(clone_method, typename T, size_t size_, size_t stride_)
+IMPL_METHOD_FOR(vec_view<T, size_, stride_>)
+inline constexpr auto clone() const noexcept {
+    vec<T, size_> result;
+    for (size_t i = 0; i < size_; ++i) {
+        result[i] = const_self[i];
+    }
+    return result;
+}
+IMPL_METHOD_END()
+
+IMPL_METHOD_BEGIN(clone_method, typename T, size_t size_, size_t stride_)
+IMPL_METHOD_FOR(const_vec_view<T, size_, stride_>)
+inline constexpr auto clone() const noexcept {
+    vec<T, size_> result;
+    for (size_t i = 0; i < size_; ++i) {
+        result[i] = const_self[i];
+    }
+    return result;
+}
+IMPL_METHOD_END()
+
 IMPL_FACTORY_BEGIN(impl_from_type_to_zero_factory, typename T, size_t size_)
 IMPL_FACTORY_FOR(vec<T, size_>)
 template <typename Tp>
@@ -215,3 +199,5 @@ struct number_properties<vec<T, size_>> {
 }  // namespace number_meta
 
 }  // namespace xcmath
+
+#include "xcmixin/scope_close.hpp"

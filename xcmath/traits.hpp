@@ -1,9 +1,8 @@
 #pragma once
 #include <cstddef>
-#include <type_traits>
 
 #include "./alias.hpp"
-
+#include "xcmixin/xcmixin.hpp"
 
 namespace xcmath {
 
@@ -94,38 +93,10 @@ struct length_properties<mat<T, row_, col_, is_dynamic_>>
 
 }  // namespace traits
 
-template <template <typename, typename> class... methods>
-struct method_recorder {
-    template <template <typename, typename> class... ext_methods>
-    using push_back = method_recorder<methods..., ext_methods...>;
-
-    template <template <typename, typename> class... ext_methods>
-    using push_front = method_recorder<ext_methods..., methods...>;
-    template <typename T>
-    struct concat_helper;
-    template <typename T>
-    using concat = details::dervef_type<concat_helper<T>>;
-    template <template <typename, typename> class... ext_methods>
-    struct concat_helper<method_recorder<ext_methods...>>
-        : details::return_type<method_recorder<methods..., ext_methods...>> {};
-};
-
-template <template <typename, typename> class method, typename recorder>
-static constexpr bool has_method = false;
-
-template <template <typename, typename> class method,
-          template <typename, typename> class... methods>
-static constexpr bool has_method<method, method_recorder<methods...>> =
-    (std::is_same_v<method<void, void>, methods<void, void>> || ...);
-
-template <typename Derived, template <typename, typename> class method>
-static constexpr bool is_impl_method =
-    has_method<method, typename Derived::method_recorder>;
-
 template <typename T, size_t row_, size_t col_, bool is_col_major_>
 struct special_mat_ext_methods_recorder;
 
 template <template <typename, typename> typename... methods>
 using impl_special_mat_ext_methods =
-    details::return_type<method_recorder<methods...>>;
+    details::return_type<xcmixin::method_recorder<methods...>>;
 }  // namespace xcmath

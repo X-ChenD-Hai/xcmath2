@@ -6,12 +6,7 @@
 #include "./functions.hpp"
 #include "./mat_methods.hpp"
 #include "./traits.hpp"
-
-#define self (*static_cast<Self*>(this))
-#define const_self (*static_cast<const Self*>(this))
-#define require_method(method)                  \
-    static_assert(is_impl_method<Self, method>, \
-                  "Derived must be derived from " #method)
+#include "xcmixin/scope_open.hpp"
 
 namespace xcmath {
 
@@ -97,6 +92,4 @@ IMPL_METHOD_END();
 
 }  // namespace xcmath
 
-#undef self
-#undef const_self
-#undef require_method
+#include "xcmixin/scope_close.hpp"

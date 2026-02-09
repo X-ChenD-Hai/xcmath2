@@ -38,14 +38,17 @@ int main() {
 
     using vec3f_view = vec_view<float, 3, 3>;
     vec3f_view av = m1[0];
-    // static_assert(
-    //     std::is_base_of_v<size_method<EmptyBase, vec3f_view>, vec3f_view>,
-    //     "");
-    // auto m21 = av.move();
-    auto m22 = av.all();
+    auto m21 = av.move();
+    const auto mmm = mat3f::unit();
+    auto vv = mmm[0].clone();
+    // auto m22 = av.all();
     // av.module();
+
     auto data = m1[0].cross(m1[1]).cross(m[2].clone());
     std::cout << data << std::endl;
+
+    auto a = m[0].clone();
+
     std::cout << vec3f::zero() << std::endl;
 
     auto m44 = mat4f::unit();

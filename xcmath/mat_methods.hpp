@@ -4,12 +4,7 @@
 #include "./functions.hpp"
 #include "./number_meta.hpp"
 #include "./traits.hpp"
-
-#define self (*static_cast<Derived*>(this))
-#define const_self (*static_cast<const Derived*>(this))
-#define require_method(method)                     \
-    static_assert(is_impl_method<Derived, method>, \
-                  "Derived must be derived from " #method)
+#include "xcmixin/scope_open.hpp"
 
 namespace xcmath {
 METHOD_DEF_BEGIN(trace_method)
@@ -220,7 +215,7 @@ static constexpr auto look_at(const T& eye, const T& center, const T& up) {
 FACTORY_DEF_END();
 
 using mat_transform_methods_recorder =
-    method_recorder<rotate_method, translate_method, scale_method>;
+    xcmixin::method_recorder<rotate_method, translate_method, scale_method>;
 
 template <typename T, bool is_col_major_>
     requires(std::is_floating_point_v<T>)
@@ -237,6 +232,4 @@ struct special_mat_ext_methods_recorder<T, 4, 4, is_col_major_>
           mat_transform_methods_recorder::push_back<look_at_method>> {};
 }  // namespace xcmath
 
-#undef self
-#undef const_self
-#undef require_method
+#include "xcmixin/scope_close.hpp"

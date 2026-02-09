@@ -2,12 +2,9 @@
 #include "./factories.hpp"
 #include "./methods.hpp"
 #include "./traits.hpp"
+#include "xcmixin/scope_open.hpp"
+#include "xcmixin/xcmixin.hpp"
 
-#define self (*static_cast<Self*>(this))
-#define const_self (*static_cast<ConstSelf*>(this))
-#define require_method(method)                     \
-    static_assert(is_impl_method<Derived, method>, \
-                  "Derived must be derived from " #method)
 
 namespace xcmath {
 
@@ -16,8 +13,8 @@ namespace xcmath {
     template <typename T>                                       \
         requires(traits::length_eq<Derived, T>)                 \
     constexpr auto operator op(const T& other) const noexcept { \
-        require_method(size_method);                            \
-        require_method(impl_from_type_to_zero_factory);         \
+        xcmixin_require_method(size_method);                    \
+        xcmixin_require_method(impl_from_type_to_zero_factory); \
         auto result = Self::template impl_from_type_to_zero<    \
             decltype(const_self[0] op other[0])>();             \
         for (size_t i = 0; i < const_self.size(); ++i) {        \
@@ -46,7 +43,7 @@ IMPL_DOUBLE_OP(operator_ge_method, >=)
 IMPL_DOUBLE_OP(operator_lt_method, <)
 IMPL_DOUBLE_OP(operator_le_method, <=)
 
-using vec_double_operator_methods_recorder = method_recorder<
+using vec_double_operator_methods_recorder = xcmixin::method_recorder<
     operator_eq_method, operator_ne_method, operator_add_method,
     operator_sub_method, operator_div_method, operator_mul_method,
     operator_mod_method, operator_bit_and_method, operator_bit_or_method,
@@ -55,6 +52,4 @@ using vec_double_operator_methods_recorder = method_recorder<
 
 }  // namespace xcmath
 #undef IMPL_DOUBLE_OP
-#undef self
-#undef const_self
-#undef require_method
+#include "xcmixin/scope_close.hpp"

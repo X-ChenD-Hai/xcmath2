@@ -8,12 +8,7 @@
 #include "./functions.hpp"
 #include "./number_meta.hpp"
 #include "traits.hpp"
-
-#define self (*static_cast<Self*>(this))
-#define const_self (*static_cast<ConstSelf*>(this))
-#define require_method(method)                     \
-    static_assert(is_impl_method<Derived, method>, \
-                  "Derived must be derived from " #method)
+#include "xcmixin/scope_open.hpp"
 
 namespace xcmath {
 
@@ -31,7 +26,7 @@ inline constexpr decltype(auto) move() noexcept { return std::move(self); }
 METHOD_DEF_END()
 METHOD_DEF_BEGIN(module_method)
 inline constexpr auto module() const noexcept {
-    require_method(size_method);
+    xcmixin_require_method(size_method);
     using item_type = std::decay_t<decltype(const_self[0])>;
     item_type module = number_meta::number_properties<item_type>::zero;
     for (size_t i = 0; i < const_self.size(); ++i) {
@@ -42,9 +37,9 @@ inline constexpr auto module() const noexcept {
 METHOD_DEF_END()
 METHOD_DEF_BEGIN(normalize_method)
 inline constexpr auto normalize() const noexcept {
-    require_method(clone_method);
-    require_method(module_method);
-    require_method(size_method);
+    xcmixin_require_method(clone_method);
+    xcmixin_require_method(module_method);
+    xcmixin_require_method(size_method);
     auto normalized = const_self.clone();
     auto module = normalized.module();
     for (size_t i = 0; i < const_self.size(); ++i) {
@@ -60,7 +55,7 @@ METHOD_DEF_BEGIN(dot_method)
 template <typename T>
     requires(traits::length_eq<Derived, T>)
 inline constexpr auto dot(const T& other) const noexcept {
-    require_method(size_method);
+    xcmixin_require_method(size_method);
     auto result = number_meta::number_properties<
         std::decay_t<decltype(const_self[0] * other[0])>>::zero;
     for (size_t i = 0; i < const_self.size(); ++i) {
@@ -74,9 +69,9 @@ METHOD_DEF_BEGIN(distance_method)
 template <typename T>
     requires(traits::length_eq<Derived, T>)
 inline constexpr auto distance(const T& other) const noexcept {
-    require_method(module_method);
-    require_method(size_method);
-    require_method(clone_method);
+    xcmixin_require_method(module_method);
+    xcmixin_require_method(size_method);
+    xcmixin_require_method(clone_method);
     auto diff = const_self.clone();
     for (size_t i = 0; i < const_self.size(); ++i) {
         diff[i] -= other[i];
@@ -104,8 +99,8 @@ METHOD_DEF_BEGIN(angle_method)
 template <typename T>
     requires(traits::length_eq<Derived, T>)
 inline constexpr auto angle(const T& other) const noexcept {
-    require_method(dot_method);
-    require_method(module_method);
+    xcmixin_require_method(dot_method);
+    xcmixin_require_method(module_method);
     auto dot_product = const_self.dot(other);
     auto modules = const_self.module() * other.module();
     return xcmath::acos(dot_product / modules);
@@ -129,7 +124,7 @@ METHOD_DEF_BEGIN(project_method)
 template <typename T>
     requires(traits::length_eq<Derived, T>)
 inline constexpr auto project(const T& onto) const noexcept {
-    require_method(dot_method);
+    xcmixin_require_method(dot_method);
     auto onto_module_sq = number_meta::number_properties<
         std::decay_t<decltype(onto[0] * onto[0])>>::zero;
     for (size_t i = 0; i < onto.size(); ++i) {
@@ -148,7 +143,7 @@ METHOD_DEF_BEGIN(reflect_method)
 template <typename T>
     requires(traits::length_eq<Derived, T>)
 inline constexpr auto reflect(const T& normal) const noexcept {
-    require_method(dot_method);
+    xcmixin_require_method(dot_method);
     auto dot_prod = const_self.dot(normal);
     auto result = const_self.clone();
     for (size_t i = 0; i < result.size(); ++i) {
@@ -164,8 +159,8 @@ METHOD_DEF_BEGIN(refract_method)
 template <typename T>
     requires(traits::length_eq<Derived, T>)
 inline constexpr auto refract(const T& normal, auto eta) const noexcept {
-    require_method(dot_method);
-    require_method(module_method);
+    xcmixin_require_method(dot_method);
+    xcmixin_require_method(module_method);
     auto dot_prod = const_self.dot(normal);
     auto k = number_meta::number_properties<decltype(eta)>::unit -
              eta * eta *
@@ -301,7 +296,7 @@ template <typename T, typename U>
 inline constexpr bool equal(
     const T& other,
     const U& epsilon = number_meta::constants_set<U>::epsilon) const noexcept {
-    require_method(size_method);
+    xcmixin_require_method(size_method);
     for (size_t i = 0; i < const_self.size(); ++i) {
         if (xcmath::fabs(const_self[i] - other[i]) > epsilon) {
             return false;
@@ -337,7 +332,7 @@ METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(any_method)
 inline constexpr bool any() const noexcept {
-    require_method(size_method);
+    xcmixin_require_method(size_method);
     for (size_t i = 0; i < const_self.size(); ++i) {
         if (const_self[i]) {
             return true;
@@ -349,7 +344,7 @@ METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(all_method)
 inline constexpr bool all() const noexcept {
-    require_method(size_method);
+    xcmixin_require_method(size_method);
     for (size_t i = 0; i < const_self.size(); ++i) {
         if (!const_self[i]) {
             return false;
@@ -359,25 +354,7 @@ inline constexpr bool all() const noexcept {
 }
 METHOD_DEF_END()
 
-template <typename Derived, template <typename, typename> class... methods>
-struct impl_methods_helper;
-template <typename Derived, template <typename, typename> class... methods>
-using impl_methods = typename impl_methods_helper<Derived, methods...>::type;
-template <typename Derived, template <typename, typename> class method>
-struct impl_methods_helper<Derived, method> {
-    struct type : method<EmptyBase, Derived> {
-        using method_recorder = method_recorder<method>;
-    };
-};
-template <typename Derived, template <typename, typename> class method,
-          template <typename, typename> class... methods>
-struct impl_methods_helper<Derived, method, methods...> {
-    struct type : method<impl_methods<Derived, methods...>, Derived> {
-        using method_recorder = method_recorder<method, methods...>;
-    };
-};
-
-using vec_member_methods_recorder = method_recorder<
+using vec_member_methods_recorder = xcmixin::method_recorder<
     size_method, clone_method, move_method, module_method, normalize_method,
     dot_method, distance_method, distance_squared_method, angle_method,
     cross_product_method, project_method, reflect_method, refract_method,
@@ -386,6 +363,4 @@ using vec_member_methods_recorder = method_recorder<
     greater_than_method, any_method, all_method>;
 }  // namespace xcmath
 
-#undef self
-#undef const_self
-#undef require_method
+#include "xcmixin/scope_close.hpp"
