@@ -205,15 +205,15 @@ using mat_transform_methods_recorder =
 
 template <typename T, bool is_col_major_>
     requires(std::is_floating_point_v<T>)
-struct spical_mat_ext_methods_recorder<T, 2, 2, is_col_major_>
-    : impl_spical_mat_ext_methods<rotate_method> {};
+struct special_mat_ext_methods_recorder<T, 2, 2, is_col_major_>
+    : impl_special_mat_ext_methods<rotate_method> {};
 template <typename T, bool is_col_major_>
     requires(std::is_floating_point_v<T>)
-struct spical_mat_ext_methods_recorder<T, 3, 3, is_col_major_>
+struct special_mat_ext_methods_recorder<T, 3, 3, is_col_major_>
     : details::return_type<mat_transform_methods_recorder> {};
 template <typename T, bool is_col_major_>
     requires(std::is_floating_point_v<T>)
-struct spical_mat_ext_methods_recorder<T, 4, 4, is_col_major_>
+struct special_mat_ext_methods_recorder<T, 4, 4, is_col_major_>
     : details::return_type<mat_transform_methods_recorder> {};
 }  // namespace xcmath
 

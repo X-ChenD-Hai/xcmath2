@@ -107,9 +107,9 @@ static constexpr bool is_impl_method =
     has_method<method, typename Derived::method_recorder>;
 
 template <typename T, size_t row_, size_t col_, bool is_col_major_>
-struct spical_mat_ext_methods_recorder;
+struct special_mat_ext_methods_recorder;
 
 template <template <typename, typename> typename... methods>
-using impl_spical_mat_ext_methods =
+using impl_special_mat_ext_methods =
     details::return_type<method_recorder<methods...>>;
 }  // namespace xcmath
