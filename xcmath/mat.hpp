@@ -5,10 +5,8 @@
 
 #include "./alias.hpp"
 #include "./mat_methods.hpp"
+#include "./traits.hpp"
 #include "./vec.hpp"
-#include "methods.hpp"
-#include "traits.hpp"
-#include "xcmath/alias.hpp"
 
 namespace xcmath {
 using comman_mat_ext_methods =
@@ -245,7 +243,7 @@ inline constexpr T determinant() const noexcept {
     return det;
 }
 IMPL_METHOD_END()
-IMPL_FACTORY_BEGIN(impl_from_type_to_zero_method, typename T, size_t col_,
+IMPL_FACTORY_BEGIN(impl_from_type_to_zero_factory, typename T, size_t col_,
                    size_t row_, bool is_col_major_)
 IMPL_FACTORY_FOR(mat<T, col_, row_, is_col_major_>)
 template <typename Tp>

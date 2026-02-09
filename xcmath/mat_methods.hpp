@@ -2,7 +2,6 @@
 #include <type_traits>
 
 #include "./functions.hpp"
-#include "./methods.hpp"
 #include "./number_meta.hpp"
 #include "./traits.hpp"
 

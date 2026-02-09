@@ -5,7 +5,6 @@
 #include "./alias.hpp"
 #include "./functions.hpp"
 #include "./mat_methods.hpp"
-#include "./methods.hpp"
 #include "./traits.hpp"
 
 #define self (*static_cast<Self*>(this))

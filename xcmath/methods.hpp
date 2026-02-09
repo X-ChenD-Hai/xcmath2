@@ -15,91 +15,14 @@
     static_assert(is_impl_method<Derived, method>, \
                   "Derived must be derived from " #method)
 
-#define METHOD_INIT                     \
-    using base_type = Base;             \
-    using Self = std::decay_t<Derived>; \
-    using ConstSelf = const Self;
-#define METHOD_DEF_BEGIN(name)                 \
-    template <typename Base, typename Derived> \
-    struct name : Base {                       \
-        METHOD_INIT
-#define METHOD_DEF_END() \
-    }                    \
-    ;
-#define METHOD_DECLARE(name) \
-    METHOD_DEF_BEGIN(name)   \
-    }
-#ifdef __GNUC__
-#define IMPL_METHOD_BEGIN(name, ext_template_params...) \
-    template <typename Base, ext_template_params>       \
-        struct name < Base,
-#define IMPL_METHOD_BEGIN_WITH_REQUIRES(name, require_statement, \
-                                        ext_template_params...)  \
-    template <typename Base, ext_template_params>                \
-        requires(require_statement)                              \
-    struct name < Base,
-#define IMPL_METHOD_FOR(cls...) \
-    cls > : Base {              \
-        using Self = cls;       \
-        using ConstSelf = const std::remove_const_t<Self>;
-
-#else
-#define IMPL_METHOD_BEGIN(name, ...)      \
-    template <typename Base, __VA_ARGS__> \
-        struct name < Base,
-#define IMPL_METHOD_BEGIN_WITH_REQUIRES(name, require_statement, ...) \
-    template <typename Base, __VA_ARGS__>                             \
-        requires(require_statement)                                   \
-    struct name < Base,
-#define IMPL_METHOD_FOR(...)      \
-    __VA_ARGS__ > : Base {        \
-        using Self = __VA_ARGS__; \
-        using ConstSelf = const std::remove_const_t<Self>;
-#endif
-#define IMPL_METHOD_END() \
-    }                     \
-    ;
-
-#define FACTORY_DECLARE(name) METHOD_DECLARE(name)
-#define FACTORY_DEF_BEGIN(name) METHOD_DEF_BEGIN(name)
-#define FACTORY_DEF_END() METHOD_DEF_END()
-#define IMPL_FACTORY_BEGIN(name, ...) IMPL_METHOD_BEGIN(name, __VA_ARGS__)
-#define IMPL_FACTORY_BEGIN_WITH_REQUIRES(name, require_statement, ...) \
-    IMPL_METHOD_BEGIN_WITH_REQUIRES(name, require_statement, __VA_ARGS__)
-#define IMPL_FACTORY_FOR(...) IMPL_METHOD_FOR(__VA_ARGS__)
-#define IMPL_FACTORY_END() IMPL_METHOD_END()
-
 namespace xcmath {
 
 struct EmptyBase {};
-
-FACTORY_DEF_BEGIN(impl_from_type_to_zero_method)
-template <typename T>
-static constexpr auto impl_from_type_to_zero() noexcept {
-    static_assert(false, "impl_from_type_to_zero_method must be implemented");
-}
-template <typename T, size_t>
-static constexpr auto impl_from_type_to_zero() noexcept {
-    static_assert(false, "impl_from_type_to_zero_method must be implemented");
-}
-FACTORY_DEF_END()
-FACTORY_DEF_BEGIN(size_method)
+METHOD_DEF_BEGIN(size_method)
 inline constexpr size_t size() const noexcept {
     return traits::length_properties<Derived>::length;
 }
-FACTORY_DEF_END()
-
-METHOD_DEF_BEGIN(zero_factory_method)
-METHOD_INIT static inline constexpr auto zero() noexcept {
-    return number_meta::number_properties<Derived>::zero;
-}
 METHOD_DEF_END()
-METHOD_DEF_BEGIN(unit_factory_method)
-static inline constexpr auto unit() noexcept {
-    return number_meta::number_properties<Derived>::unit;
-}
-METHOD_DEF_END()
-
 METHOD_DEF_BEGIN(clone_method)
 inline constexpr auto clone() const noexcept { return const_self; }
 METHOD_DEF_END()
@@ -453,6 +376,14 @@ struct impl_methods_helper<Derived, method, methods...> {
         using method_recorder = method_recorder<method, methods...>;
     };
 };
+
+using vec_member_methods_recorder = method_recorder<
+    size_method, clone_method, move_method, module_method, normalize_method,
+    dot_method, distance_method, distance_squared_method, angle_method,
+    cross_product_method, project_method, reflect_method, refract_method,
+    abs_method, min_method, max_method, clamp_method, floor_method, ceil_method,
+    round_method, fract_method, sign_method, equal_method, less_than_method,
+    greater_than_method, any_method, all_method>;
 }  // namespace xcmath
 
 #undef self

@@ -1,6 +1,7 @@
 #pragma once
-#include "methods.hpp"
-#include "xcmath/traits.hpp"
+#include "./factories.hpp"
+#include "./methods.hpp"
+#include "./traits.hpp"
 
 #define self (*static_cast<Self*>(this))
 #define const_self (*static_cast<ConstSelf*>(this))
@@ -16,7 +17,7 @@ namespace xcmath {
         requires(traits::length_eq<Derived, T>)                 \
     constexpr auto operator op(const T& other) const noexcept { \
         require_method(size_method);                            \
-        require_method(impl_from_type_to_zero_method);          \
+        require_method(impl_from_type_to_zero_factory);         \
         auto result = Self::template impl_from_type_to_zero<    \
             decltype(const_self[0] op other[0])>();             \
         for (size_t i = 0; i < const_self.size(); ++i) {        \
