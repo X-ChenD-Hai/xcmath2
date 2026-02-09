@@ -7,6 +7,7 @@
 #include "./vec.hpp"
 #include "methods.hpp"
 #include "traits.hpp"
+#include "xcmath/alias.hpp"
 
 namespace xcmath {
 using comman_mat_ext_methods =
@@ -30,18 +31,17 @@ template <typename T, size_t row_, size_t col_, bool is_col_major_,
           template <typename, typename> typename... special_methods>
 struct base_of_mat_impl_helper<T, row_, col_, is_col_major_,
                                method_recorder<ext_methods...>,
-                               method_recorder<special_methods...>> {
-    using type = std::conditional_t<
-        is_col_major_,
-        vec_impl<mat<T, row_, col_, is_col_major_>, vec<T, row_>, col_,
-                 special_methods..., ext_methods...>,
-        vec_impl<mat<T, row_, col_, is_col_major_>, vec<T, col_>, row_,
-                 special_methods..., ext_methods...>>;
-};
+                               method_recorder<special_methods...>>
+    : return_type<std::conditional_t<
+          is_col_major_,
+          vec_impl<mat<T, row_, col_, is_col_major_>, vec<T, row_>, col_,
+                   special_methods..., ext_methods...>,
+          vec_impl<mat<T, row_, col_, is_col_major_>, vec<T, col_>, row_,
+                   special_methods..., ext_methods...>>> {};
 
 template <typename T, size_t row_, size_t col_, bool is_col_major_>
 using base_of_mat_impl =
-    base_of_mat_impl_helper<T, row_, col_, is_col_major_>::type;
+    details::dervef_type<base_of_mat_impl_helper<T, row_, col_, is_col_major_>>;
 };  // namespace details
 
 template <typename T, size_t row_, size_t col_, bool is_col_major_>
@@ -55,6 +55,25 @@ struct mat_impl
 
    public:
     using Super::Super;
+    mat_impl(const mat_impl&) = default;
+    mat_impl(mat_impl&&) = default;
+    mat_impl& operator=(const mat_impl&) = default;
+    mat_impl& operator=(mat_impl&&) = default;
+
+    constexpr decltype(auto) operator[](size_t i) {
+        return static_cast<mat*>(this)->at(i);
+    }
+    constexpr decltype(auto) operator[](size_t i) const {
+        return static_cast<const mat*>(this)->at(i);
+    }
+#if XCMATH_CXX_STD >= 202302L
+    constexpr T& operator[](size_t i, size_t j) {
+        return static_cast<mat*>(this)->at(i, j);
+    }
+    constexpr const T& operator[](size_t i, size_t j) const {
+        return static_cast<const mat*>(this)->at(i, j);
+    }
+#endif
 };
 
 template <typename T, size_t row_, size_t col_>
@@ -66,13 +85,10 @@ class mat<T, row_, col_, false> : public mat_impl<T, row_, col_, false> {
     using impl::impl;
 
     constexpr mat& operator=(const mat<T, row_, col_, true>& other);
-    constexpr T& operator[](size_t i, size_t j) { return Super::data_[i][j]; }
-    constexpr const T& operator[](size_t i, size_t j) const {
+    using impl::at;
+    inline constexpr T& at(size_t i, size_t j) { return Super::data_[i][j]; }
+    inline constexpr const T& at(size_t i, size_t j) const {
         return Super::data_[i][j];
-    }
-    constexpr vec<T, col_>& operator[](size_t i) { return Super::data_[i]; }
-    constexpr const vec<T, col_>& operator[](size_t i) const {
-        return Super::data_[i];
     }
 };
 
@@ -84,8 +100,11 @@ class mat<T, row_, col_, true> : public mat_impl<T, row_, col_, true> {
     using const_row_view = const_vec_view<T, col_, row_>;
 
    public:
-    using impl::impl;
-
+    constexpr mat() = default;
+    constexpr mat(const mat&) = default;
+    constexpr mat(mat&&) = default;
+    mat& operator=(const mat&) = default;
+    mat& operator=(mat&&) = default;
     constexpr mat(const std::initializer_list<vec<T, col_>>& init) : impl{} {
         size_t i = 0;
         for (const auto& row : init) {
@@ -96,22 +115,22 @@ class mat<T, row_, col_, true> : public mat_impl<T, row_, col_, true> {
         }
     }
 
-    constexpr row_view operator[](size_t idx) {
+    constexpr row_view at(size_t idx) {
         assert_index(idx, row_);
-        return row_view(&operator[](idx, 0));
+        return row_view(&at(idx, 0));
     }
-    constexpr const_row_view operator[](size_t idx) const {
+    constexpr const_row_view at(size_t idx) const {
         assert_index(idx, row_);
-        return const_row_view(&operator[](idx, 0));
+        return const_row_view(&at(idx, 0));
     }
-    constexpr T& operator[](size_t i, size_t j) { return Super::data_[j][i]; }
-    constexpr const T& operator[](size_t i, size_t j) const {
+    constexpr T& at(size_t i, size_t j) { return Super::data_[j][i]; }
+    constexpr const T& at(size_t i, size_t j) const {
         return Super::data_[j][i];
     }
     constexpr mat& operator=(const mat<T, row_, col_, false>& other) {
         for (size_t i = 0; i < row_; ++i) {
             for (size_t j = 0; j < col_; ++j) {
-                this->data_[j][i] = other[i, j];
+                this->data_[j][i] = other.at(i, j);
             }
         }
         return *this;
@@ -123,7 +142,7 @@ IMPL_METHOD_BEGIN(determinant_method, typename T, bool is_col_major_)
 IMPL_METHOD_FOR(mat<T, 2, 2, is_col_major_>)
 inline constexpr T determinant() const noexcept {
     const auto& self = *static_cast<const mat<T, 2, 2, is_col_major_>*>(this);
-    return self[0, 0] * self[1, 1] - self[0, 1] * self[1, 0];
+    return self.at(0, 0) * self.at(1, 1) - self.at(0, 1) * self.at(1, 0);
 }
 IMPL_METHOD_END()
 
@@ -132,9 +151,12 @@ IMPL_METHOD_BEGIN(determinant_method, typename T, bool is_col_major_)
 IMPL_METHOD_FOR(mat<T, 3, 3, is_col_major_>)
 inline constexpr T determinant() const noexcept {
     const auto& self = *static_cast<const mat<T, 3, 3, is_col_major_>*>(this);
-    return self[0, 0] * (self[1, 1] * self[2, 2] - self[1, 2] * self[2, 1]) -
-           self[0, 1] * (self[1, 0] * self[2, 2] - self[1, 2] * self[2, 0]) +
-           self[0, 2] * (self[1, 0] * self[2, 1] - self[1, 1] * self[2, 0]);
+    return self.at(0, 0) *
+               (self.at(1, 1) * self.at(2, 2) - self.at(1, 2) * self.at(2, 1)) -
+           self.at(0, 1) *
+               (self.at(1, 0) * self.at(2, 2) - self.at(1, 2) * self.at(2, 0)) +
+           self.at(0, 2) *
+               (self.at(1, 0) * self.at(2, 1) - self.at(1, 1) * self.at(2, 0));
 }
 IMPL_METHOD_END()
 
@@ -143,34 +165,30 @@ IMPL_METHOD_BEGIN(determinant_method, typename T, bool is_col_major_)
 IMPL_METHOD_FOR(mat<T, 4, 4, is_col_major_>)
 inline constexpr T determinant() const noexcept {
     const auto& self = *static_cast<const mat<T, 4, 4, is_col_major_>*>(this);
-    return self[0, 0] *
-               (self[1, 1] *
-                    (self[2, 2] * self[3, 3] - self[2, 3] * self[3, 2]) -
-                self[1, 2] *
-                    (self[2, 1] * self[3, 3] - self[2, 3] * self[3, 1]) +
-                self[1, 3] *
-                    (self[2, 1] * self[3, 2] - self[2, 2] * self[3, 1])) -
-           self[0, 1] *
-               (self[1, 0] *
-                    (self[2, 2] * self[3, 3] - self[2, 3] * self[3, 2]) -
-                self[1, 2] *
-                    (self[2, 0] * self[3, 3] - self[2, 3] * self[3, 0]) +
-                self[1, 3] *
-                    (self[2, 0] * self[3, 2] - self[2, 2] * self[3, 0])) +
-           self[0, 2] *
-               (self[1, 0] *
-                    (self[2, 1] * self[3, 3] - self[2, 3] * self[3, 1]) -
-                self[1, 1] *
-                    (self[2, 0] * self[3, 3] - self[2, 3] * self[3, 0]) +
-                self[1, 3] *
-                    (self[2, 0] * self[3, 1] - self[2, 1] * self[3, 0])) -
-           self[0, 3] *
-               (self[1, 0] *
-                    (self[2, 1] * self[3, 2] - self[2, 2] * self[3, 1]) -
-                self[1, 1] *
-                    (self[2, 0] * self[3, 2] - self[2, 2] * self[3, 0]) +
-                self[1, 2] *
-                    (self[2, 0] * self[3, 1] - self[2, 1] * self[3, 0]));
+    return self.at(0, 0) * (self.at(1, 1) * (self.at(2, 2) * self.at(3, 3) -
+                                             self.at(2, 3) * self.at(3, 2)) -
+                            self.at(1, 2) * (self.at(2, 1) * self.at(3, 3) -
+                                             self.at(2, 3) * self.at(3, 1)) +
+                            self.at(1, 3) * (self.at(2, 1) * self.at(3, 2) -
+                                             self.at(2, 2) * self.at(3, 1))) -
+           self.at(0, 1) * (self.at(1, 0) * (self.at(2, 2) * self.at(3, 3) -
+                                             self.at(2, 3) * self.at(3, 2)) -
+                            self.at(1, 2) * (self.at(2, 0) * self.at(3, 3) -
+                                             self.at(2, 3) * self.at(3, 0)) +
+                            self.at(1, 3) * (self.at(2, 0) * self.at(3, 2) -
+                                             self.at(2, 2) * self.at(3, 0))) +
+           self.at(0, 2) * (self.at(1, 0) * (self.at(2, 1) * self.at(3, 3) -
+                                             self.at(2, 3) * self.at(3, 1)) -
+                            self.at(1, 1) * (self.at(2, 0) * self.at(3, 3) -
+                                             self.at(2, 3) * self.at(3, 0)) +
+                            self.at(1, 3) * (self.at(2, 0) * self.at(3, 1) -
+                                             self.at(2, 1) * self.at(3, 0))) -
+           self.at(0, 3) * (self.at(1, 0) * (self.at(2, 1) * self.at(3, 2) -
+                                             self.at(2, 2) * self.at(3, 1)) -
+                            self.at(1, 1) * (self.at(2, 0) * self.at(3, 2) -
+                                             self.at(2, 2) * self.at(3, 0)) +
+                            self.at(1, 2) * (self.at(2, 0) * self.at(3, 1) -
+                                             self.at(2, 1) * self.at(3, 0)));
 }
 IMPL_METHOD_END()
 
@@ -190,37 +208,37 @@ inline constexpr T determinant() const noexcept {
         // Find pivot
         size_t pivot = i;
         for (size_t r = i + 1; r < size_; ++r) {
-            if (xcmath::fabs(a[r, i]) > xcmath::fabs(a[pivot, i])) {
+            if (xcmath::fabs(a.at(r, i)) > xcmath::fabs(a.at(pivot, i))) {
                 pivot = r;
             }
         }
 
         // If pivot is zero, matrix is singular
-        if (a[pivot, i] == number_meta::number_properties<T>::zero) {
+        if (a.at(pivot, i) == number_meta::number_properties<T>::zero) {
             return number_meta::number_properties<T>::zero;
         }
 
         // Swap rows if needed
         if (pivot != i) {
             for (size_t c = i; c < size_; ++c) {
-                std::swap(a[i, c], a[pivot, c]);
+                std::swap(a.at(i, c), a.at(pivot, c));
             }
             det = -det;  // Row swap changes sign
         }
 
         // Elimination
         for (size_t r = i + 1; r < size_; ++r) {
-            if (a[r, i] == number_meta::number_properties<T>::zero) continue;
-            T factor = a[r, i] / a[i, i];
+            if (a.at(r, i) == number_meta::number_properties<T>::zero) continue;
+            T factor = a.at(r, i) / a.at(i, i);
             for (size_t c = i; c < size_; ++c) {
-                a[r, c] -= factor * a[i, c];
+                a.at(r, c) -= factor * a.at(i, c);
             }
         }
     }
 
     // Calculate product of diagonal
     for (size_t i = 0; i < size_; ++i) {
-        det *= a[i, i];
+        det *= a.at(i, i);
     }
 
     return det;
@@ -235,7 +253,7 @@ struct number_properties<mat<T, row_, col_, is_col_major_>> {
     static constexpr number_type unit = []() {
         number_type unit = zero;
         for (size_t i = 0; i < (col_ < row_ ? col_ : row_); ++i) {
-            unit[i, i] = number_properties<T>::unit;
+            unit.at(i, i) = number_properties<T>::unit;
         }
         return unit;
     }();
@@ -247,7 +265,7 @@ inline constexpr mat<T, row_, col_, false>&
 mat<T, row_, col_, false>::operator=(const mat<T, row_, col_, true>& other) {
     for (size_t i = 0; i < row_; ++i) {
         for (size_t j = 0; j < col_; ++j) {
-            this->data_[i][j] = other[i, j];
+            this->data_[i][j] = other.at(i, j);
         }
     }
     return *this;

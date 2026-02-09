@@ -29,6 +29,7 @@
 #define METHOD_DECLARE(name) \
     METHOD_DEF_BEGIN(name)   \
     }
+#ifdef __GNUC__
 #define IMPL_METHOD_BEGIN(name, ext_template_params...) \
     template <typename Base, ext_template_params>       \
         struct name < Base,
@@ -41,10 +42,23 @@
     cls > : Base {              \
         using Self = cls;       \
         using ConstSelf = const std::remove_const_t<Self>;
+
+#else
+#define IMPL_METHOD_BEGIN(name, ...)      \
+    template <typename Base, __VA_ARGS__> \
+        struct name < Base,
+#define IMPL_METHOD_BEGIN_WITH_REQUIRES(name, require_statement, ...) \
+    template <typename Base, __VA_ARGS__>                             \
+        requires(require_statement)                                   \
+    struct name < Base,
+#define IMPL_METHOD_FOR(...)      \
+    __VA_ARGS__ > : Base {        \
+        using Self = __VA_ARGS__; \
+        using ConstSelf = const std::remove_const_t<Self>;
+#endif
 #define IMPL_METHOD_END() \
     }                     \
     ;
-
 namespace xcmath {
 
 struct EmptyBase {};

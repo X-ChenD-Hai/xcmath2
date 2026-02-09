@@ -16,7 +16,6 @@ if(BUILD_TESTING)
     add_subdirectory(test)
 endif()
 
-
 install(TARGETS xcmath EXPORT xcmath)
 
 install(

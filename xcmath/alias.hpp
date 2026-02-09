@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+#include "./utility/compile_traits.hpp"  // IWYU pragma: export
+
 #define assert_index(idx, size_) assert((idx) < (size_) && "index out of range")
 namespace xcmath {
 template <typename T, size_t size_>

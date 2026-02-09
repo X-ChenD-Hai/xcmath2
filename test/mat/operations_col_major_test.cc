@@ -8,7 +8,7 @@ using namespace xcmath;
 
 // 列优先矩阵测试
 TEST(MatrixOperationsColMajor, Transpose) {
-    mat<float, 2, 3, true> m = {{1, 2, 3}, {4, 5, 6}};
+    mat<float, 2, 3, true> m{{1, 2, 3}, {4, 5, 6}};
     auto result = transpose(m);
 
     EXPECT_EQ(result[0][0], 1);

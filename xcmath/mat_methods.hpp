@@ -2,7 +2,7 @@
 #include <type_traits>
 
 #include "./functions.hpp"
-#include "methods.hpp"
+#include "./methods.hpp"
 #include "number_meta.hpp"
 #include "traits.hpp"
 
@@ -15,12 +15,12 @@
 namespace xcmath {
 METHOD_DEF_BEGIN(trace_method)
 constexpr auto trace() const noexcept {
-    using result_type = std::decay_t<decltype(const_self[0, 0])>;
+    using result_type = std::decay_t<decltype(const_self.at(0, 0))>;
     result_type result = number_meta::number_properties<result_type>::zero;
     auto size = const_self.size() < const_self[0].size() ? const_self.size()
                                                          : const_self[0].size();
     for (size_t i = 0; i < size; ++i) {
-        result += const_self[i, i];
+        result += const_self.at(i, i);
     }
     return result;
 }
@@ -30,7 +30,7 @@ METHOD_DEF_END()
 // size)
 METHOD_DEF_BEGIN(determinant_method)
 constexpr auto determinant() const noexcept {
-    using result_type = std::decay_t<decltype(const_self[0, 0])>;
+    using result_type = std::decay_t<decltype(const_self.at(0, 0))>;
     constexpr size_t size_ = sizeof(Derived) == 0 ? 0 : 0;  // placeholder
     static_assert(sizeof(Derived) == 0,
                   "determinant() requires matrix specialization");
@@ -40,14 +40,14 @@ METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(transpose_method)
 constexpr auto transpose() const noexcept {
-    using value_type = std::decay_t<decltype(const_self[0, 0])>;
+    using value_type = std::decay_t<decltype(const_self.at(0, 0))>;
     constexpr size_t row = traits::mat_dims<Derived>::rows;
     constexpr size_t col = traits::mat_dims<Derived>::cols;
     constexpr bool is_col_major = traits::mat_dims<Derived>::is_col_major;
     mat<value_type, col, row, !is_col_major> result;
     for (size_t i = 0; i < row; ++i) {
         for (size_t j = 0; j < col; ++j) {
-            result[j, i] = const_self[i, j];
+            result.at(j, i) = const_self.at(i, j);
         }
     }
     return result;
@@ -56,7 +56,7 @@ METHOD_DEF_END()
 
 METHOD_DEF_BEGIN(inverse_method)
 constexpr auto inverse() const noexcept {
-    using value_type = std::decay_t<decltype(const_self[0, 0])>;
+    using value_type = std::decay_t<decltype(const_self.at(0, 0))>;
     constexpr size_t row = traits::mat_dims<Derived>::rows;
     constexpr size_t col = traits::mat_dims<Derived>::cols;
     constexpr bool is_col_major = traits::mat_dims<Derived>::is_col_major;
@@ -66,12 +66,12 @@ constexpr auto inverse() const noexcept {
 
     // 2x2 matrix inverse
     if constexpr (row == 2 && col == 2) {
-        value_type det = const_self[0, 0] * const_self[1, 1] -
-                         const_self[0, 1] * const_self[1, 0];
-        result[0, 0] = const_self[1, 1] / det;
-        result[0, 1] = -const_self[0, 1] / det;
-        result[1, 0] = -const_self[1, 0] / det;
-        result[1, 1] = const_self[0, 0] / det;
+        value_type det = const_self.at(0, 0) * const_self.at(1, 1) -
+                         const_self.at(0, 1) * const_self.at(1, 0);
+        result.at(0, 0) = const_self.at(1, 1) / det;
+        result.at(0, 1) = -const_self.at(0, 1) / det;
+        result.at(1, 0) = -const_self.at(1, 0) / det;
+        result.at(1, 1) = const_self.at(0, 0) / det;
     }
     // 3x3 matrix inverse
     else if constexpr (row == 3 && col == 3) {
@@ -89,14 +89,14 @@ constexpr auto inverse() const noexcept {
                     size_t minor_col = 0;
                     for (size_t c = 0; c < 3; ++c) {
                         if (c == j) continue;
-                        minor[minor_row, minor_col] = const_self[r, c];
+                        minor.at(minor_row, minor_col) = const_self.at(r, c);
                         ++minor_col;
                     }
                     ++minor_row;
                 }
                 value_type cofactor =
                     xcmath::determinant(minor) * ((i + j) % 2 == 0 ? 1 : -1);
-                result[j, i] =
+                result.at(j, i) =
                     cofactor / det;  // Adjugate = transpose of cofactor
             }
         }
@@ -117,14 +117,14 @@ constexpr auto inverse() const noexcept {
                     size_t minor_col = 0;
                     for (size_t c = 0; c < 4; ++c) {
                         if (c == j) continue;
-                        minor[minor_row, minor_col] = const_self[r, c];
+                        minor.at(minor_row, minor_col) = const_self.at(r, c);
                         ++minor_col;
                     }
                     ++minor_row;
                 }
                 value_type cofactor =
                     xcmath::determinant(minor) * ((i + j) % 2 == 0 ? 1 : -1);
-                result[j, i] =
+                result.at(j, i) =
                     cofactor / det;  // Adjugate = transpose of cofactor
             }
         }

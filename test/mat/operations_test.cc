@@ -137,7 +137,7 @@ TEST(MatrixOperations, Determinant5x5) {
     mat<float, 5, 5> m;
     for (size_t i = 0; i < 5; ++i) {
         for (size_t j = 0; j < 5; ++j) {
-            m[i, j] = (i == j) ? static_cast<float>(i + 1) : 0.0f;
+            m.at(i, j) = (i == j) ? static_cast<float>(i + 1) : 0.0f;
         }
     }
     float result = determinant(m);
@@ -160,9 +160,9 @@ TEST(MatrixOperations, Determinant6x6UpperTriangular) {
     for (size_t i = 0; i < 6; ++i) {
         for (size_t j = 0; j < 6; ++j) {
             if (i <= j) {
-                m[i, j] = 2.0f;
+                m.at(i, j) = 2.0f;
             } else {
-                m[i, j] = 0.0f;
+                m.at(i, j) = 0.0f;
             }
         }
     }
@@ -234,7 +234,7 @@ TEST(DeterminantMethod, Determinant5x5Method) {
     mat<float, 5, 5> m;
     for (size_t i = 0; i < 5; ++i) {
         for (size_t j = 0; j < 5; ++j) {
-            m[i, j] = (i == j) ? static_cast<float>(i + 1) : 0.0f;
+            m.at(i, j) = (i == j) ? static_cast<float>(i + 1) : 0.0f;
         }
     }
     float result = m.determinant();
@@ -257,9 +257,9 @@ TEST(DeterminantMethod, Determinant6x6UpperTriangularMethod) {
     for (size_t i = 0; i < 6; ++i) {
         for (size_t j = 0; j < 6; ++j) {
             if (i <= j) {
-                m[i, j] = 2.0f;
+                m.at(i, j) = 2.0f;
             } else {
-                m[i, j] = 0.0f;
+                m.at(i, j) = 0.0f;
             }
         }
     }
@@ -491,7 +491,7 @@ TEST(MatrixOperations, InverseMethodAAtranspose) {
             float expected = (i == j) ? 1.0f : 0.0f;
             float actual = 0.0f;
             for (size_t k = 0; k < 3; ++k) {
-                actual += AAT[i, k] * inv[k, j];
+                actual += AAT.at(i, k) * inv.at(k, j);
             }
             EXPECT_FLOAT_EQ(actual, expected);
         }

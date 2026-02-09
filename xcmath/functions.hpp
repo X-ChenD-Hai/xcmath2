@@ -59,7 +59,7 @@ constexpr auto outer_product(const vec<T, size_>& v1, const vec<T, size_>& v2) {
     mat<T, size_, size_> result;
     for (size_t i = 0; i < size_; ++i) {
         for (size_t j = 0; j < size_; ++j) {
-            result[i, j] = v1[i] * v2[j];
+            result.at(i, j) = v1[i] * v2[j];
         }
     }
     return result;
@@ -73,9 +73,9 @@ constexpr auto operator*(const mat<T, row1_, col1_, is_col_major_>& m1,
     mat<T, row1_, col2_, is_col_major_> result;
     for (size_t i = 0; i < row1_; ++i) {
         for (size_t j = 0; j < col2_; ++j) {
-            result[i, j] = T{};
+            result.at(i, j) = T{};
             for (size_t k = 0; k < col1_; ++k) {
-                result[i, j] += m1[i, k] * m2[k, j];
+                result.at(i, j) += m1.at(i, k) * m2.at(k, j);
             }
         }
     }
@@ -90,7 +90,7 @@ constexpr auto operator*(const mat<T, row_, col_, is_col_major_>& m,
     for (size_t i = 0; i < row_; ++i) {
         result[i] = T{};
         for (size_t j = 0; j < col_; ++j) {
-            result[i] += m[i, j] * v[j];
+            result.at(i) += m.at(i, j) * v.at(j);
         }
     }
     return result;
@@ -103,7 +103,7 @@ constexpr auto operator+(const mat<T, row_, col_, is_col_major_>& m1,
     mat<T, row_, col_, is_col_major_> result;
     for (size_t i = 0; i < row_; ++i) {
         for (size_t j = 0; j < col_; ++j) {
-            result[i, j] = m1[i, j] + m2[i, j];
+            result.at(i, j) = m1.at(i, j) + m2.at(i, j);
         }
     }
     return result;
@@ -115,7 +115,7 @@ constexpr auto operator-(const mat<T, row_, col_, is_col_major_>& m1,
     mat<T, row_, col_, is_col_major_> result;
     for (size_t i = 0; i < row_; ++i) {
         for (size_t j = 0; j < col_; ++j) {
-            result[i, j] = m1[i, j] - m2[i, j];
+            result.at(i, j) = m1.at(i, j) - m2.at(i, j);
         }
     }
     return result;
@@ -129,7 +129,7 @@ constexpr auto operator*(const mat<T, row_, col_, is_col_major_>& m,
     mat<T, row_, col_, is_col_major_> result;
     for (size_t i = 0; i < row_; ++i) {
         for (size_t j = 0; j < col_; ++j) {
-            result[i, j] = m[i, j] * scalar;
+            result.at(i, j) = m.at(i, j) * scalar;
         }
     }
     return result;

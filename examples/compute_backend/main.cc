@@ -66,6 +66,8 @@ int main() {
               << std::endl;
     std::cout << m33.rotate(angle, vec3f{0, 0, 1}) * vec3_ << std::endl;
     std::cout << m33_2d_.rotate(angle).scale(2.f) * vec3_2d_ << std::endl;
+    std::cout << XCMATH_CXX_STD << std::endl;
+    std::cout << m33_2d_[1, 2] << std::endl;
     // std::cout << m22_.rotate(angle).scale(2.f) * vec2_ << std::endl;
 
     return 0;

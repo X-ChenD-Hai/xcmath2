@@ -27,16 +27,14 @@ template <typename Derived, typename T, size_t size_,
           template <typename, typename> class... methods,
           template <typename, typename> class... ext_methods>
 struct base_of_vec_impl_helper<Derived, T, size_, method_recorder<methods...>,
-                               ext_methods...> {
-    using type = impl_methods<Derived, ext_methods..., methods...>;
+                               ext_methods...>
+    : details::return_type<impl_methods<Derived, ext_methods..., methods...>> {
 };
 
 template <typename Derived, typename T, size_t size_,
           template <typename, typename> class... ext_methods>
-using base_of_vec_impl =
-    base_of_vec_impl_helper<Derived, T, size_,
-                            vec_impl_methods<Derived, T, size_>,
-                            ext_methods...>::type;
+using base_of_vec_impl = details::dervef_type<base_of_vec_impl_helper<
+    Derived, T, size_, vec_impl_methods<Derived, T, size_>, ext_methods...>>;
 }  // namespace details
 
 template <typename T, typename = void>
@@ -128,12 +126,16 @@ class vec_impl
     using data_type = vec_properties<T>::data_type;
 
    public:
+    constexpr vec_impl() = default;
+    vec_impl(const vec_impl&) = default;
+    vec_impl(vec_impl&&) = default;
+    vec_impl& operator=(const vec_impl&) = default;
+    vec_impl& operator=(vec_impl&&) = default;
     explicit constexpr vec_impl(const T& fill_data) : data_{fill_data} {
         for (size_t i = 0; i < size_; ++i) {
             data_[i] = fill_data;
         }
     }
-    constexpr vec_impl() : data_{} {}
     constexpr vec_impl(const std::initializer_list<item_type>& init_list) {
         assert_index(init_list.size(), size_ + 1);
         size_t i = 0;
@@ -142,8 +144,16 @@ class vec_impl
         }
     }
 
-    constexpr T& operator[](size_t idx) { return data_[idx]; }
-    constexpr const T& operator[](size_t idx) const { return data_[idx]; }
+    constexpr T& at(size_t idx) {
+        assert_index(idx, size_);
+        return data_[idx];
+    }
+    constexpr const T& at(size_t idx) const {
+        assert_index(idx, size_);
+        return data_[idx];
+    }
+    constexpr T& operator[](size_t idx) { return at(idx); }
+    constexpr const T& operator[](size_t idx) const { return at(idx); }
 
     constexpr operator vec_view<T, size_, 1>() {
         return vec_view<T, size_, 1>(data_);
