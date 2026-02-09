@@ -59,15 +59,35 @@
 #define IMPL_METHOD_END() \
     }                     \
     ;
+
+#define FACTORY_DECLARE(name) METHOD_DECLARE(name)
+#define FACTORY_DEF_BEGIN(name) METHOD_DEF_BEGIN(name)
+#define FACTORY_DEF_END() METHOD_DEF_END()
+#define IMPL_FACTORY_BEGIN(name, ...) IMPL_METHOD_BEGIN(name, __VA_ARGS__)
+#define IMPL_FACTORY_BEGIN_WITH_REQUIRES(name, require_statement, ...) \
+    IMPL_METHOD_BEGIN_WITH_REQUIRES(name, require_statement, __VA_ARGS__)
+#define IMPL_FACTORY_FOR(...) IMPL_METHOD_FOR(__VA_ARGS__)
+#define IMPL_FACTORY_END() IMPL_METHOD_END()
+
 namespace xcmath {
 
 struct EmptyBase {};
 
-METHOD_DEF_BEGIN(size_method)
+FACTORY_DEF_BEGIN(impl_from_type_to_zero_method)
+template <typename T>
+static constexpr auto impl_from_type_to_zero() noexcept {
+    static_assert(false, "impl_from_type_to_zero_method must be implemented");
+}
+template <typename T, size_t>
+static constexpr auto impl_from_type_to_zero() noexcept {
+    static_assert(false, "impl_from_type_to_zero_method must be implemented");
+}
+FACTORY_DEF_END()
+FACTORY_DEF_BEGIN(size_method)
 inline constexpr size_t size() const noexcept {
     return traits::length_properties<Derived>::length;
 }
-METHOD_DEF_END()
+FACTORY_DEF_END()
 
 METHOD_DEF_BEGIN(zero_factory_method)
 METHOD_INIT static inline constexpr auto zero() noexcept {
@@ -353,9 +373,11 @@ METHOD_DEF_END()
 // Comparison operations
 
 METHOD_DEF_BEGIN(equal_method)
-template <typename T>
+template <typename T, typename U>
     requires(traits::length_eq<Derived, T>)
-inline constexpr bool equal(const T& other, auto epsilon) const noexcept {
+inline constexpr bool equal(
+    const T& other,
+    const U& epsilon = number_meta::constants_set<U>::epsilon) const noexcept {
     require_method(size_method);
     for (size_t i = 0; i < const_self.size(); ++i) {
         if (xcmath::fabs(const_self[i] - other[i]) > epsilon) {

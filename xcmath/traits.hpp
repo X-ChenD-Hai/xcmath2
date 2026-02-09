@@ -93,7 +93,21 @@ struct length_properties<mat<T, row_, col_, is_dynamic_>>
 }  // namespace traits
 
 template <template <typename, typename> class... methods>
-struct method_recorder;
+struct method_recorder {
+    template <template <typename, typename> class... ext_methods>
+    using push_back = method_recorder<methods..., ext_methods...>;
+
+    template <template <typename, typename> class... ext_methods>
+    using push_front = method_recorder<ext_methods..., methods...>;
+    template <typename T>
+    struct concat_helper;
+    template <typename T>
+    using concat = details::dervef_type<concat_helper<T>>;
+    template <template <typename, typename> class... ext_methods>
+    struct concat_helper<method_recorder<ext_methods...>>
+        : details::return_type<method_recorder<methods..., ext_methods...>> {};
+};
+
 template <template <typename, typename> class method, typename recorder>
 static constexpr bool has_method = false;
 

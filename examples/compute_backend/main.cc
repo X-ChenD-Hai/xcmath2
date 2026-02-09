@@ -1,4 +1,3 @@
-#include <type_traits>
 #define ENABLE_COL_MAJOR_MAT
 #include <cassert>
 #include <iostream>
@@ -8,7 +7,7 @@
 #include <xcmath/transform_methods.hpp>
 #include <xcmath/vec.hpp>
 
-#include "xcmath/methods.hpp"
+#include "xcmath/alias.hpp"
 
 using namespace xcmath;
 
@@ -39,7 +38,6 @@ int main() {
 
     using vec3f_view = vec_view<float, 3, 3>;
     vec3f_view av = m1[0];
-    static_assert(std::is_base_of_v<all_method<EmptyBase, vec3f>, vec3f>, "");
     // static_assert(
     //     std::is_base_of_v<size_method<EmptyBase, vec3f_view>, vec3f_view>,
     //     "");
@@ -68,7 +66,16 @@ int main() {
     std::cout << m33_2d_.rotate(angle).scale(2.f) * vec3_2d_ << std::endl;
     std::cout << XCMATH_CXX_STD << std::endl;
     std::cout << m33_2d_[1, 2] << std::endl;
-    // std::cout << m22_.rotate(angle).scale(2.f) * vec2_ << std::endl;
+    std::cout << vec3_ << m33[1] << std::endl;
+    std::cout << (vec3_ == m33[1]).all() << std::endl;
+    std::cout << vec3_ << m33[1] << std::endl;
+    std::cout << (m33[1] == m33[1]).all() << std::endl;
+    std::cout << m33 << std::endl;
+    std::cout << m33_2d_.translate(vec2f{1, 2}) * m33 << std::endl;
+    // std::cout << (m33_2d_ == m33_2d_).all() << std::endl;
+    // std::cout << mat4f::look_at(vec3f{0, 0, 0}, vec3f{0, 0, 1}, vec3f{0, 1,
+    // 0})
+    //           << std::endl;
 
     return 0;
 }

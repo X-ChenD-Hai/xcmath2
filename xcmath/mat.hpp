@@ -1,4 +1,5 @@
 #pragma once
+#include <cstddef>
 #include <initializer_list>
 #include <type_traits>
 
@@ -244,7 +245,15 @@ inline constexpr T determinant() const noexcept {
     return det;
 }
 IMPL_METHOD_END()
-
+IMPL_FACTORY_BEGIN(impl_from_type_to_zero_method, typename T, size_t col_,
+                   size_t row_, bool is_col_major_)
+IMPL_FACTORY_FOR(mat<T, col_, row_, is_col_major_>)
+template <typename Tp>
+static inline constexpr auto impl_from_type_to_zero() noexcept {
+    return number_meta::number_properties<
+        mat<Tp, col_, row_, is_col_major_>>::zero;
+}
+IMPL_FACTORY_END()
 namespace number_meta {
 template <typename T, size_t row_, size_t col_, bool is_col_major_>
 struct number_properties<mat<T, row_, col_, is_col_major_>> {

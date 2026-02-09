@@ -34,20 +34,22 @@ struct number_properties<int32_t> : number_properties_helper<int32_t, 0, 1> {};
 template <>
 struct number_properties<int64_t> : number_properties_helper<int64_t, 0, 1> {};
 template <>
+struct number_properties<bool> : number_properties_helper<bool, false, true> {};
+template <>
 struct number_properties<float> : number_properties_helper<float, 0.f, 1.f> {};
 template <>
 struct number_properties<double> : number_properties_helper<double, 0., 1.> {};
 
 template <typename T>
 struct constants_set {
-    static constexpr long double PI = 3.14159265358979323846;
-    static constexpr long double HALF_PI = PI / 2.0;
-    static constexpr long double TAU = PI * 2.0;
-    static constexpr long double QUARTER_PI = HALF_PI / 2.0;
-    static constexpr long double DEGREE = 180.0 / PI;
-    static constexpr long double RADIANS = 1.0 / DEGREE;
-    static constexpr long double EPSILON = 1e-6;
-    static constexpr size_t EPSILON_EXP = 6;
-    static constexpr long double EPSILON_SQ = EPSILON * EPSILON;
+    static constexpr long double pi = 3.14159265358979323846;
+    static constexpr long double half_pi = pi / 2.0;
+    static constexpr long double tau = pi * 2.0;
+    static constexpr long double quarter_pi = half_pi / 2.0;
+    static constexpr long double degree = 180.0 / pi;
+    static constexpr long double radians = 1.0 / degree;
+    static constexpr long double epsilon = 1e-6;
+    static constexpr size_t epsilon_exp = 6;
+    static constexpr long double epsilon_sq = epsilon * epsilon;
 };
 }  // namespace xcmath::number_meta

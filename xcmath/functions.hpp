@@ -9,11 +9,11 @@ namespace xcmath {
 
 template <typename T>
 inline constexpr T radians(T degrees) {
-    return degrees * number_meta::constants_set<T>::RADIANS;
+    return degrees * number_meta::constants_set<T>::radians;
 };
 template <typename T>
 inline constexpr T degrees(T radians) {
-    return radians * number_meta::constants_set<T>::DEGREE;
+    return radians * number_meta::constants_set<T>::degree;
 }
 
 using std::abs;

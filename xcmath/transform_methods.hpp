@@ -62,7 +62,7 @@ IMPL_METHOD_BEGIN_WITH_REQUIRES(translate_method,
                                 typename T, size_t size_, bool is_col_major_)
 IMPL_METHOD_FOR(mat<T, size_, size_, is_col_major_>)
 template <class VTp>
-    requires(traits::length_in_range<VTp, 3, 4>)
+    requires(traits::length_in_range<VTp, size_ - 1, size_>)
 constexpr auto translate(const VTp& v) {
     auto res = const_self.clone();
     res.at(0, size_ - 1) += v[0];

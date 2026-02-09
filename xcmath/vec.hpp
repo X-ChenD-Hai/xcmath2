@@ -5,6 +5,7 @@
 
 #include "./alias.hpp"
 #include "./methods.hpp"
+#include "./operators.hpp"
 #include "./point_accesser.hpp"  // IWYU pragma: keep
 #include "number_meta.hpp"
 
@@ -17,8 +18,9 @@ using vec_impl_methods = method_recorder<
     angle_method, project_method, reflect_method, refract_method,
     cross_product_method, abs_method, min_method, max_method, clamp_method,
     floor_method, ceil_method, round_method, fract_method, sign_method,
-    equal_method, less_than_method, greater_than_method, any_method,
-    all_method>;
+    equal_method, less_than_method, greater_than_method, any_method, all_method,
+    impl_from_type_to_zero_method>::
+    template concat<vec_double_operator_methods_recorder>;
 namespace details {
 template <typename Derived, typename T, size_t size_, typename method_recorder,
           template <typename, typename> class... ext_methods>
@@ -170,6 +172,30 @@ class vec_impl
    protected:
     T data_[size_]{number_meta::number_properties<T>::zero};
 };
+
+IMPL_FACTORY_BEGIN(impl_from_type_to_zero_method, typename T, size_t size_)
+IMPL_FACTORY_FOR(vec<T, size_>)
+template <typename Tp>
+static inline constexpr auto impl_from_type_to_zero() noexcept {
+    return number_meta::number_properties<vec<Tp, size_>>::zero;
+}
+IMPL_FACTORY_END()
+IMPL_FACTORY_BEGIN(impl_from_type_to_zero_method, typename T, size_t size_,
+                   size_t stride_)
+IMPL_FACTORY_FOR(vec_view<T, size_, stride_>)
+template <typename Tp>
+static inline constexpr auto impl_from_type_to_zero() noexcept {
+    return number_meta::number_properties<vec<Tp, size_>>::zero;
+}
+IMPL_FACTORY_END()
+IMPL_FACTORY_BEGIN(impl_from_type_to_zero_method, typename T, size_t size_,
+                   size_t stride_)
+IMPL_FACTORY_FOR(const_vec_view<T, size_, stride_>)
+template <typename Tp>
+static inline constexpr auto impl_from_type_to_zero() noexcept {
+    return number_meta::number_properties<vec<Tp, size_>>::zero;
+}
+IMPL_FACTORY_END()
 
 template <typename T, size_t size_>
 class vec : public vec_impl<vec<T, size_>, T, size_> {

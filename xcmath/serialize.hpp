@@ -14,7 +14,7 @@ std::ostream& operator<<(std::ostream& out,
     for (size_t i = 0; i < size_; ++i) {
         if constexpr (std::is_floating_point_v<T>) {
             if (xcmath::abs(v[i]) <
-                xcmath::number_meta::constants_set<T>::EPSILON) {
+                xcmath::number_meta::constants_set<T>::epsilon) {
                 out << 0.0;
             } else {
                 out << v[i];

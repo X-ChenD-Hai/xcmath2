@@ -3,8 +3,8 @@
 
 #include "./functions.hpp"
 #include "./methods.hpp"
-#include "number_meta.hpp"
-#include "traits.hpp"
+#include "./number_meta.hpp"
+#include "./traits.hpp"
 
 #define self (*static_cast<Derived*>(this))
 #define const_self (*static_cast<const Derived*>(this))
@@ -199,6 +199,26 @@ METHOD_DEF_END()
 METHOD_DECLARE(rotate_method);
 METHOD_DECLARE(translate_method);
 METHOD_DECLARE(scale_method);
+FACTORY_DEF_BEGIN(look_at_method)
+template <typename T>
+    requires(traits::length_properties<T>::length == 3)
+static constexpr auto look_at(const T& eye, const T& center, const T& up) {
+    auto result = Derived::unit();
+    const auto forward = (center - eye).normalize();
+    const auto right = up.cross(forward).normalize();
+    const auto new_up = forward.cross(right);
+    result.at(0, 0) = right[0];
+    result.at(0, 1) = right[1];
+    result.at(0, 2) = right[2];
+    result.at(1, 0) = new_up[0];
+    result.at(1, 1) = new_up[1];
+    result.at(1, 2) = new_up[2];
+    result.at(2, 0) = -forward[0];
+    result.at(2, 1) = -forward[1];
+    result.at(2, 2) = -forward[2];
+    return result;
+}
+FACTORY_DEF_END();
 
 using mat_transform_methods_recorder =
     method_recorder<rotate_method, translate_method, scale_method>;
@@ -214,7 +234,8 @@ struct special_mat_ext_methods_recorder<T, 3, 3, is_col_major_>
 template <typename T, bool is_col_major_>
     requires(std::is_floating_point_v<T>)
 struct special_mat_ext_methods_recorder<T, 4, 4, is_col_major_>
-    : details::return_type<mat_transform_methods_recorder> {};
+    : details::return_type<
+          mat_transform_methods_recorder::push_back<look_at_method>> {};
 }  // namespace xcmath
 
 #undef self
