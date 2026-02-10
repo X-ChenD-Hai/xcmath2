@@ -1,8 +1,8 @@
+#include "xcmath/interpolation.hpp"
+
 #include <gtest/gtest.h>
-#include <cmath>
 
 #include "xcmath/vec.hpp"
-#include "xcmath/interpolation.hpp"
 
 using namespace xcmath;
 
@@ -165,7 +165,8 @@ TEST(bezier_quadratic_test, vec2_basic) {
 }
 
 TEST(bezier_cubic_test, scalar_basic) {
-    // Cubic Bezier: (1-t)^3 * p0 + 3*(1-t)^2*t * p1 + 3*(1-t)*t^2 * p2 + t^3 * p3
+    // Cubic Bezier: (1-t)^3 * p0 + 3*(1-t)^2*t * p1 + 3*(1-t)*t^2 * p2 + t^3 *
+    // p3
     EXPECT_FLOAT_EQ(bezier(0.0f, 0.0f, 1.0f, 1.0f, 0.0f), 0.0f);
     EXPECT_FLOAT_EQ(bezier(0.0f, 0.0f, 1.0f, 1.0f, 1.0f), 1.0f);
     EXPECT_NEAR(bezier(0.0f, 0.0f, 1.0f, 1.0f, 0.5f), 0.5f, 1e-6f);
@@ -241,7 +242,8 @@ TEST(catmull_rom_test, tension_parameter) {
     // Verify tension affects the result
     // tension=0: factor=1, result=0.375
     float tension_0 = catmull_rom(0.0f, 0.0f, 1.0f, 1.0f, 0.5f, 0.0f);
-    // tension=0.5: factor=0.5, h10=0.0625, h11=-0.0625, result=0.5 - 0.0625 = 0.4375
+    // tension=0.5: factor=0.5, h10=0.0625, h11=-0.0625, result=0.5 - 0.0625 =
+    // 0.4375
     float tension_1 = catmull_rom(0.0f, 0.0f, 1.0f, 1.0f, 0.5f, 0.5f);
     EXPECT_NE(tension_0, tension_1);
     EXPECT_NEAR(tension_0, 0.375f, 1e-6f);
@@ -392,9 +394,7 @@ TEST(lerp_edge_cases, same_point) {
     EXPECT_FLOAT_EQ(result[1], 2.0f);
 }
 
-TEST(step_edge_cases, at_edge) {
-    EXPECT_FLOAT_EQ(step(0.5f, 0.5f), 1.0f);
-}
+TEST(step_edge_cases, at_edge) { EXPECT_FLOAT_EQ(step(0.5f, 0.5f), 1.0f); }
 
 TEST(smoothstep_edge_cases, outside_range) {
     EXPECT_FLOAT_EQ(smoothstep(0.0f, 1.0f, -0.5f), 0.0f);

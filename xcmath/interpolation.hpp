@@ -71,13 +71,14 @@ using element_type_t = typename element_type<T>::type;
 // Linear interpolation for scalar types
 template <typename T>
 inline constexpr T scalar_lerp(T a, T b,
-                                interpolation_details::element_type_t<T> t) {
+                               interpolation_details::element_type_t<T> t) {
     return a + t * (b - a);
 }
 
 // Step function for scalar types
 template <typename T>
-inline constexpr T scalar_step(interpolation_details::element_type_t<T> edge, T x) {
+inline constexpr T scalar_step(interpolation_details::element_type_t<T> edge,
+                               T x) {
     return x < edge ? T(0) : T(1);
 }
 
@@ -103,13 +104,14 @@ inline constexpr T scalar_smootherstep(
     t = std::clamp(t, elem_type(0), elem_type(1));
     elem_type t2 = t * t;
     elem_type t3 = t2 * t;
-    return static_cast<T>(elem_type(6) * t3 * t2 - elem_type(15) * t2 * t2 + elem_type(10) * t3);
+    return static_cast<T>(elem_type(6) * t3 * t2 - elem_type(15) * t2 * t2 +
+                          elem_type(10) * t3);
 }
 
 // Quadratic Bezier for scalar types
 template <typename T>
 inline constexpr T scalar_bezier(T p0, T p1, T p2,
-                                  interpolation_details::element_type_t<T> t) {
+                                 interpolation_details::element_type_t<T> t) {
     using elem_type = interpolation_details::element_type_t<T>;
     elem_type one_minus_t = elem_type(1) - t;
     elem_type tt = t * t;
@@ -120,7 +122,7 @@ inline constexpr T scalar_bezier(T p0, T p1, T p2,
 // Cubic Bezier for scalar types
 template <typename T>
 inline constexpr T scalar_bezier(T p0, T p1, T p2, T p3,
-                                  interpolation_details::element_type_t<T> t) {
+                                 interpolation_details::element_type_t<T> t) {
     using elem_type = interpolation_details::element_type_t<T>;
     elem_type one_minus_t = elem_type(1) - t;
     elem_type tt = t * t;
@@ -139,9 +141,9 @@ inline constexpr T scalar_bezier(T p0, T p1, T p2, T p3,
 // h11 = t^3 - t^2 + tension * (t^3 - t^2)
 // When tension = 0, this is the standard Catmull-Rom spline
 template <typename T>
-inline constexpr T scalar_catmull_rom(T p0, T p1, T p2, T p3,
-                                       interpolation_details::element_type_t<T> t,
-                                       interpolation_details::element_type_t<T> tension = 0.5) {
+inline constexpr T scalar_catmull_rom(
+    T p0, T p1, T p2, T p3, interpolation_details::element_type_t<T> t,
+    interpolation_details::element_type_t<T> tension = 0.5) {
     using elem_type = interpolation_details::element_type_t<T>;
     elem_type tt = t * t;
     elem_type ttt = tt * t;
@@ -244,7 +246,8 @@ inline constexpr T vec_smootherstep(
         t = std::clamp(t, elem_type(0), elem_type(1));
         elem_type t2 = t * t;
         elem_type t3 = t2 * t;
-        result[i] = elem_type(6) * t3 * t2 - elem_type(15) * t2 * t2 + elem_type(10) * t3;
+        result[i] = elem_type(6) * t3 * t2 - elem_type(15) * t2 * t2 +
+                    elem_type(10) * t3;
     }
     return result;
 }
@@ -260,15 +263,16 @@ inline constexpr T vec_bezier(const T& p0, const T& p1, const T& p2,
 
     T result = create_zero_result<T>();
     for (size_t i = 0; i < p0.size(); ++i) {
-        result[i] = p0[i] * one_minus_tt + p1[i] * (elem_type(2) * one_minus_t * t) +
-                    p2[i] * tt;
+        result[i] = p0[i] * one_minus_tt +
+                    p1[i] * (elem_type(2) * one_minus_t * t) + p2[i] * tt;
     }
     return result;
 }
 
 // Cubic Bezier for vector/matrix types
 template <typename T>
-inline constexpr T vec_bezier(const T& p0, const T& p1, const T& p2, const T& p3,
+inline constexpr T vec_bezier(const T& p0, const T& p1, const T& p2,
+                              const T& p3,
                               interpolation_details::element_type_t<T> t) {
     using elem_type = interpolation_details::element_type_t<T>;
     elem_type one_minus_t = elem_type(1) - t;
@@ -281,17 +285,17 @@ inline constexpr T vec_bezier(const T& p0, const T& p1, const T& p2, const T& p3
     for (size_t i = 0; i < p0.size(); ++i) {
         result[i] = p0[i] * one_minus_ttt +
                     p1[i] * (elem_type(3) * one_minus_tt * t) +
-                    p2[i] * (elem_type(3) * one_minus_t * tt) +
-                    p3[i] * ttt;
+                    p2[i] * (elem_type(3) * one_minus_t * tt) + p3[i] * ttt;
     }
     return result;
 }
 
 // Catmull-Rom for vector/matrix types
 template <typename T>
-inline constexpr T vec_catmull_rom(const T& p0, const T& p1, const T& p2, const T& p3,
-                                   interpolation_details::element_type_t<T> t,
-                                   interpolation_details::element_type_t<T> tension = 0.5) {
+inline constexpr T vec_catmull_rom(
+    const T& p0, const T& p1, const T& p2, const T& p3,
+    interpolation_details::element_type_t<T> t,
+    interpolation_details::element_type_t<T> tension = 0.5) {
     using elem_type = interpolation_details::element_type_t<T>;
     elem_type tt = t * t;
     elem_type ttt = tt * t;
@@ -311,8 +315,9 @@ inline constexpr T vec_catmull_rom(const T& p0, const T& p1, const T& p2, const 
 
 // Hermite for vector/matrix types
 template <typename T>
-inline constexpr T vec_hermite(const T& p0, const T& m0, const T& p1, const T& m1,
-                              interpolation_details::element_type_t<T> t) {
+inline constexpr T vec_hermite(const T& p0, const T& m0, const T& p1,
+                               const T& m1,
+                               interpolation_details::element_type_t<T> t) {
     using elem_type = interpolation_details::element_type_t<T>;
     elem_type tt = t * t;
     elem_type ttt = tt * t;
@@ -393,7 +398,7 @@ inline constexpr T smootherstep(interpolation_details::element_type_t<T> edge0,
 // Quadratic Bezier curve
 template <typename T>
 inline constexpr T bezier(const T& p0, const T& p1, const T& p2,
-                         interpolation_details::element_type_t<T> t) {
+                          interpolation_details::element_type_t<T> t) {
     if constexpr (interpolation_details::is_vec_v<T> ||
                   interpolation_details::is_mat_v<T>) {
         return vec_bezier(p0, p1, p2, t);
@@ -405,7 +410,7 @@ inline constexpr T bezier(const T& p0, const T& p1, const T& p2,
 // Cubic Bezier curve
 template <typename T>
 inline constexpr T bezier(const T& p0, const T& p1, const T& p2, const T& p3,
-                         interpolation_details::element_type_t<T> t) {
+                          interpolation_details::element_type_t<T> t) {
     if constexpr (interpolation_details::is_vec_v<T> ||
                   interpolation_details::is_mat_v<T>) {
         return vec_bezier(p0, p1, p2, p3, t);
@@ -416,9 +421,10 @@ inline constexpr T bezier(const T& p0, const T& p1, const T& p2, const T& p3,
 
 // Catmull-Rom spline interpolation
 template <typename T>
-inline constexpr T catmull_rom(const T& p0, const T& p1, const T& p2, const T& p3,
-                               interpolation_details::element_type_t<T> t,
-                               interpolation_details::element_type_t<T> tension = 0.0) {
+inline constexpr T catmull_rom(
+    const T& p0, const T& p1, const T& p2, const T& p3,
+    interpolation_details::element_type_t<T> t,
+    interpolation_details::element_type_t<T> tension = 0.0) {
     if constexpr (interpolation_details::is_vec_v<T> ||
                   interpolation_details::is_mat_v<T>) {
         return vec_catmull_rom(p0, p1, p2, p3, t, tension);
@@ -460,7 +466,7 @@ inline constexpr T nlerp(const T& q1, const T& q2,
 // Spherical linear interpolation (Slerp)
 template <typename T>
 inline constexpr T slerp(const T& q1, const T& q2,
-                          interpolation_details::element_type_t<T> t) {
+                         interpolation_details::element_type_t<T> t) {
     using elem_type = interpolation_details::element_type_t<T>;
     elem_type dot = q1.dot(q2);
 

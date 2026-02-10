@@ -1,4 +1,5 @@
-find_package(GTest CONFIG)
+enable_testing()
+include(${CMAKE_SOURCE_DIR}/cmake/include_test_deps.cmake)
 enable_testing()
 set(TEST_LIBS
     xcmath

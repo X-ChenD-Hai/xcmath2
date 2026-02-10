@@ -13,4 +13,5 @@
 !xmake.lua
 !examples/
 !TODO
+!cmake
 docs/doxygen

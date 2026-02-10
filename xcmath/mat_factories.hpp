@@ -52,8 +52,8 @@ FACTORY_DEF_END()
 IMPL_FACTORY_BEGIN(ortho_factory, typename T, bool is_col_major)
 IMPL_FACTORY_FOR(mat<T, 4, 4, is_col_major>)
 template <typename Tp>
-static constexpr auto ortho(Tp left, Tp right, Tp bottom, Tp top,
-                            Tp near, Tp far) {
+static constexpr auto ortho(Tp left, Tp right, Tp bottom, Tp top, Tp near,
+                            Tp far) {
     auto result = Self::unit();
     const Tp rl = right - left;
     const Tp tb = top - bottom;
@@ -71,8 +71,8 @@ IMPL_FACTORY_END();
 IMPL_FACTORY_BEGIN(frustum_factory, typename T, bool is_col_major)
 IMPL_FACTORY_FOR(mat<T, 4, 4, is_col_major>)
 template <typename Tp>
-static constexpr auto frustum(Tp left, Tp right, Tp bottom, Tp top,
-                              Tp near, Tp far) {
+static constexpr auto frustum(Tp left, Tp right, Tp bottom, Tp top, Tp near,
+                              Tp far) {
     auto result = Self::zero();
     const Tp rl = right - left;
     const Tp tb = top - bottom;
