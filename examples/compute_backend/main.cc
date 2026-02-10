@@ -8,6 +8,8 @@
 #include <xcmath/vec.hpp>
 
 #include "xcmath/alias.hpp"
+#include "xcmath/mat_factories.hpp"
+
 
 using namespace xcmath;
 
@@ -76,9 +78,8 @@ int main() {
     std::cout << m33 << std::endl;
     std::cout << m33_2d_.translate(vec2f{1, 2}) * m33 << std::endl;
     // std::cout << (m33_2d_ == m33_2d_).all() << std::endl;
-    // std::cout << mat4f::look_at(vec3f{0, 0, 0}, vec3f{0, 0, 1}, vec3f{0, 1,
-    // 0})
-    //           << std::endl;
+    std::cout << mat4f::look_at(vec3f{0, 0, 0}, vec3f{0, 0, 1}, vec3f{0, 1, 0})
+              << std::endl;
 
     return 0;
 }
