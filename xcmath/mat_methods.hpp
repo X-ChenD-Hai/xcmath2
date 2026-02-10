@@ -134,15 +134,24 @@ constexpr auto inverse() const noexcept {
 METHOD_DEF_END()
 
 METHOD_DECLARE(rotate_method);
+METHOD_DECLARE(rotate_x_method);
+METHOD_DECLARE(rotate_y_method);
+METHOD_DECLARE(rotate_z_method);
+METHOD_DECLARE(shear_method);
 METHOD_DECLARE(translate_method);
 METHOD_DECLARE(scale_method);
 FACTORY_DECLARE(look_at_factory);
 FACTORY_DECLARE(perspective_factory);
+FACTORY_DECLARE(ortho_factory);
+FACTORY_DECLARE(frustum_factory);
 using mat4f_ext_methods_recorder =
-    xcmixin::method_recorder<look_at_factory, perspective_factory>;
+    xcmixin::method_recorder<look_at_factory, perspective_factory,
+                             ortho_factory, frustum_factory>;
 
 using mat_transform_methods_recorder =
-    xcmixin::method_recorder<rotate_method, translate_method, scale_method>;
+    xcmixin::method_recorder<rotate_method, rotate_x_method, rotate_y_method,
+                             rotate_z_method, shear_method, translate_method,
+                             scale_method>;
 
 template <typename T, bool is_col_major_>
     requires(std::is_floating_point_v<T>)

@@ -51,6 +51,162 @@ auto rotate(ATp angle) {
 
 IMPL_METHOD_END();
 
+IMPL_METHOD_BEGIN_WITH_REQUIRES(rotate_x_method,
+                                (traits::value_in_range<size_, 3, 4>),
+                                typename T, size_t size_, bool is_col_major_)
+IMPL_METHOD_FOR(mat<T, size_, size_, is_col_major_>)
+template <typename ATp>
+    requires(std::is_floating_point_v<ATp>)
+constexpr auto rotate_x(ATp angle) {
+    angle = radians(angle);
+    const auto c = xcmath::cos(angle);
+    const auto s = xcmath::sin(angle);
+    // Build rotation matrix
+    mat<T, size_, size_, is_col_major_> rot;
+    if constexpr (size_ == 3) {
+        rot.at(0, 0) = 1;
+        rot.at(0, 1) = 0;
+        rot.at(0, 2) = 0;
+        rot.at(1, 0) = 0;
+        rot.at(1, 1) = c;
+        rot.at(1, 2) = -s;
+        rot.at(2, 0) = 0;
+        rot.at(2, 1) = s;
+        rot.at(2, 2) = c;
+    } else {
+        rot.at(0, 0) = 1;
+        rot.at(0, 1) = 0;
+        rot.at(0, 2) = 0;
+        rot.at(0, 3) = 0;
+        rot.at(1, 0) = 0;
+        rot.at(1, 1) = c;
+        rot.at(1, 2) = -s;
+        rot.at(1, 3) = 0;
+        rot.at(2, 0) = 0;
+        rot.at(2, 1) = s;
+        rot.at(2, 2) = c;
+        rot.at(2, 3) = 0;
+        rot.at(3, 0) = 0;
+        rot.at(3, 1) = 0;
+        rot.at(3, 2) = 0;
+        rot.at(3, 3) = 1;
+    }
+    return rot * const_self;
+}
+IMPL_METHOD_END();
+
+IMPL_METHOD_BEGIN_WITH_REQUIRES(rotate_y_method,
+                                (traits::value_in_range<size_, 3, 4>),
+                                typename T, size_t size_, bool is_col_major_)
+IMPL_METHOD_FOR(mat<T, size_, size_, is_col_major_>)
+template <typename ATp>
+    requires(std::is_floating_point_v<ATp>)
+constexpr auto rotate_y(ATp angle) {
+    angle = radians(angle);
+    const auto c = xcmath::cos(angle);
+    const auto s = xcmath::sin(angle);
+    // Build rotation matrix
+    mat<T, size_, size_, is_col_major_> rot;
+    if constexpr (size_ == 3) {
+        rot.at(0, 0) = c;
+        rot.at(0, 1) = 0;
+        rot.at(0, 2) = s;
+        rot.at(1, 0) = 0;
+        rot.at(1, 1) = 1;
+        rot.at(1, 2) = 0;
+        rot.at(2, 0) = -s;
+        rot.at(2, 1) = 0;
+        rot.at(2, 2) = c;
+    } else {
+        rot.at(0, 0) = c;
+        rot.at(0, 1) = 0;
+        rot.at(0, 2) = s;
+        rot.at(0, 3) = 0;
+        rot.at(1, 0) = 0;
+        rot.at(1, 1) = 1;
+        rot.at(1, 2) = 0;
+        rot.at(1, 3) = 0;
+        rot.at(2, 0) = -s;
+        rot.at(2, 1) = 0;
+        rot.at(2, 2) = c;
+        rot.at(2, 3) = 0;
+        rot.at(3, 0) = 0;
+        rot.at(3, 1) = 0;
+        rot.at(3, 2) = 0;
+        rot.at(3, 3) = 1;
+    }
+    return rot * const_self;
+}
+IMPL_METHOD_END();
+
+IMPL_METHOD_BEGIN_WITH_REQUIRES(rotate_z_method,
+                                (traits::value_in_range<size_, 2, 4>),
+                                typename T, size_t size_, bool is_col_major_)
+IMPL_METHOD_FOR(mat<T, size_, size_, is_col_major_>)
+template <typename ATp>
+    requires(std::is_floating_point_v<ATp>)
+constexpr auto rotate_z(ATp angle) {
+    angle = radians(angle);
+    const auto c = xcmath::cos(angle);
+    const auto s = xcmath::sin(angle);
+    // Build rotation matrix
+    mat<T, size_, size_, is_col_major_> rot;
+    if constexpr (size_ == 2) {
+        rot.at(0, 0) = c;
+        rot.at(0, 1) = -s;
+        rot.at(1, 0) = s;
+        rot.at(1, 1) = c;
+    } else if constexpr (size_ == 3) {
+        rot.at(0, 0) = c;
+        rot.at(0, 1) = -s;
+        rot.at(0, 2) = 0;
+        rot.at(1, 0) = s;
+        rot.at(1, 1) = c;
+        rot.at(1, 2) = 0;
+        rot.at(2, 0) = 0;
+        rot.at(2, 1) = 0;
+        rot.at(2, 2) = 1;
+    } else {
+        rot.at(0, 0) = c;
+        rot.at(0, 1) = -s;
+        rot.at(0, 2) = 0;
+        rot.at(0, 3) = 0;
+        rot.at(1, 0) = s;
+        rot.at(1, 1) = c;
+        rot.at(1, 2) = 0;
+        rot.at(1, 3) = 0;
+        rot.at(2, 0) = 0;
+        rot.at(2, 1) = 0;
+        rot.at(2, 2) = 1;
+        rot.at(2, 3) = 0;
+        rot.at(3, 0) = 0;
+        rot.at(3, 1) = 0;
+        rot.at(3, 2) = 0;
+        rot.at(3, 3) = 1;
+    }
+    return rot * const_self;
+}
+IMPL_METHOD_END();
+
+IMPL_METHOD_BEGIN_WITH_REQUIRES(shear_method,
+                                (traits::value_in_range<size_, 3, 4>),
+                                typename T, size_t size_, bool is_col_major_)
+IMPL_METHOD_FOR(mat<T, size_, size_, is_col_major_>)
+template <class VTp>
+    requires(traits::length_in_range<VTp, 6, 6>)
+constexpr auto shear(const VTp& factors) {
+    auto res = const_self.clone();
+    // factors = [sh_xy, sh_xz, sh_yx, sh_yz, sh_zx, sh_zy]
+    res.at(0, 1) += factors[0];  // sh_xy
+    res.at(0, 2) += factors[1];  // sh_xz
+    res.at(1, 0) += factors[2];  // sh_yx
+    res.at(1, 2) += factors[3];  // sh_yz
+    res.at(2, 0) += factors[4];  // sh_zx
+    res.at(2, 1) += factors[5];  // sh_zy
+    return res;
+}
+IMPL_METHOD_END();
+
 IMPL_METHOD_BEGIN_WITH_REQUIRES(translate_method,
                                 (traits::value_in_range<size_, 3, 4>),
                                 typename T, size_t size_, bool is_col_major_)
