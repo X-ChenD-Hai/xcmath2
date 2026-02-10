@@ -5,12 +5,11 @@
             "name": "debug",
             "binaryDir": "build/${presetName}",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "ENABLE_TESTING": true
+                "CMAKE_BUILD_TYPE": "Debug"
             }
         },
         {
-            "name": "Release",
+            "name": "release",
             "inherits": [
                 "debug"
             ],
