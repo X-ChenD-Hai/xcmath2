@@ -9,7 +9,7 @@ option(BUILD_TESTING "Build tests" ON)
 option(XCMATH_BUILD_SHARED_LIBS "Build dynamic library" OFF)
 
 add_subdirectory(xcmath)
-add_subdirectory(examples/compute_backend)
+add_subdirectory(examples/usage)
 
 if(BUILD_TESTING)
     enable_testing()

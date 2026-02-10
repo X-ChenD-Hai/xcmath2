@@ -10,18 +10,17 @@
 #include "xcmath/alias.hpp"
 #include "xcmath/mat_factories.hpp"
 
-
 using namespace xcmath;
 
-auto get_m() {
+consteval auto get_m() {
     mat3f a{};
 
-    a[0][0] = 1;
-    a[0][1] = 2;
-    a[0][2] = 3;
-    a[1][0] = 4;
-    a[1][1] = 5;
-    a[1][2] = 6;
+    a[0, 0] = 1;
+    a[0, 1] = 2;
+    a[0, 2] = 3;
+    a[1, 0] = 4;
+    a[1, 1] = 5;
+    a[1, 2] = 6;
     return a;
 }
 
@@ -36,11 +35,8 @@ int main() {
     std::cout << v2.cross(v1).sign() << std::endl;
     std::cout << m.trace() << std::endl;
 
-    auto m1 = get_m();
+    constexpr auto m1 = get_m();
 
-    using vec3f_view = vec_view<float, 3, 3>;
-    vec3f_view av = m1[0];
-    auto m21 = av.move();
     const auto mmm = mat3f::unit();
     auto vv = mmm[0].clone();
     // auto m22 = av.all();
@@ -69,7 +65,6 @@ int main() {
               << std::endl;
     std::cout << m33.rotate(angle, vec3f{0, 0, 1}) * vec3_ << std::endl;
     std::cout << m33_2d_.rotate(angle).scale(2.f) * vec3_2d_ << std::endl;
-    std::cout << XCMATH_CXX_STD << std::endl;
     std::cout << m33_2d_[1, 2] << std::endl;
     std::cout << vec3_ << m33[1] << std::endl;
     std::cout << (vec3_ == m33[1]).all() << std::endl;
