@@ -7,7 +7,7 @@
 | 线性代数基础 | [linear-algebra.md](linear-algebra.md) | 已完成(等待全面测试) |
 | 矩阵操作     | [matrix.md](matrix.md)                 | 已完成(等待全面测试) |
 | 变换矩阵     | [transform.md](transform.md)           | 已完成(等待全面测试) |
-| 插值函数     | [interpolation.md](interpolation.md)   | 待开始               |
+| 插值函数     | [interpolation.md](interpolation.md)   | 已完成(等待全面测试) |
 | 四元数       | [quaternion.md](quaternion.md)         | 待开始               |
 | 颜色空间     | [color.md](color.md)                   | 待开始               |
 | 几何工具     | [geometry.md](geometry.md)             | 待开始               |
@@ -21,3 +21,7 @@
 - [x] `normalize()` - 向量归一化
 - [x] `zero()` / `unit()` - 工厂方法
 - [x] `point_accesser` - 点访问器 (x, y, z, w)
+- [x] **插值函数** (`xcmath/interpolation.hpp`)
+  - 基础: `lerp`, `mix`, `step`, `smoothstep`, `smootherstep`
+  - 高级: `bezier`(二次/三次), `catmull_rom`, `hermite`
+  - 球面: `nlerp`, `slerp`
