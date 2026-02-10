@@ -13,6 +13,7 @@ target_sources(vec_test PRIVATE
     vec/view_test.cc
     vec/properties_test.cc
     vec/linear_algebra_test.cc
+    vec/interpolation_test.cc
 )
 
 target_link_libraries(
