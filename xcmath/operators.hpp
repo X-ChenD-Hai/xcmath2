@@ -5,7 +5,6 @@
 #include "xcmixin/scope_open.hpp"
 #include "xcmixin/xcmixin.hpp"
 
-
 namespace xcmath {
 
 #define IMPL_DOUBLE_OP(name, op)                                \
@@ -42,6 +41,84 @@ IMPL_DOUBLE_OP(operator_gt_method, >)
 IMPL_DOUBLE_OP(operator_ge_method, >=)
 IMPL_DOUBLE_OP(operator_lt_method, <)
 IMPL_DOUBLE_OP(operator_le_method, <=)
+
+METHOD_DEF_BEGIN(operator_bitnot_method)
+template <typename T>
+    requires(traits::length_eq<Derived, T>)
+constexpr auto operator~() const noexcept {
+    xcmixin_require_method(size_method);
+    xcmixin_require_method(impl_from_type_to_zero_factory);
+    auto result =
+        Self::template impl_from_type_to_zero<decltype(~const_self[0])>();
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        result[i] = ~const_self[i];
+    }
+    return result;
+}
+METHOD_DEF_END()
+
+METHOD_DEF_BEGIN(operator_not_method)
+template <typename T>
+    requires(traits::length_eq<Derived, T>)
+constexpr auto operator!() const noexcept {
+    xcmixin_require_method(size_method);
+    xcmixin_require_method(impl_from_type_to_zero_factory);
+    auto result =
+        Self::template impl_from_type_to_zero<decltype(!const_self[0])>();
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        result[i] = !const_self[i];
+    }
+    return result;
+}
+METHOD_DEF_END()
+
+METHOD_DEF_BEGIN(operator_inc_method)
+constexpr auto operator++() noexcept {
+    xcmixin_require_method(size_method);
+    xcmixin_require_method(clone_method);
+    auto result = self.clone();
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        result[i]++;
+    }
+    return result;
+}
+METHOD_DEF_END()
+
+METHOD_DEF_BEGIN(operator_dec_method)
+constexpr auto operator--() noexcept {
+    xcmixin_require_method(size_method);
+    xcmixin_require_method(clone_method);
+    auto result = self.clone();
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        result[i]--;
+    }
+    return result;
+}
+METHOD_DEF_END()
+
+METHOD_DEF_BEGIN(operator_pre_inc_method)
+constexpr auto operator++(int) noexcept {
+    xcmixin_require_method(size_method);
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        ++self[i];
+    }
+    return self;
+}
+METHOD_DEF_END()
+METHOD_DEF_BEGIN(operator_pre_dec_method)
+constexpr auto operator--(int) noexcept {
+    xcmixin_require_method(size_method);
+    for (size_t i = 0; i < const_self.size(); ++i) {
+        --self[i];
+    }
+    return self;
+}
+METHOD_DEF_END()
+
+using vec_single_operator_methods_recorder =
+    xcmixin::method_recorder<operator_bitnot_method, operator_not_method,
+                             operator_inc_method, operator_dec_method,
+                             operator_pre_inc_method, operator_pre_dec_method>;
 
 using vec_double_operator_methods_recorder = xcmixin::method_recorder<
     operator_eq_method, operator_ne_method, operator_add_method,

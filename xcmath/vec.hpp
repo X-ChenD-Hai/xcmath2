@@ -13,11 +13,10 @@
 #include "xcmixin/xcmixin.hpp"
 namespace xcmath {
 template <typename T, size_t size_>
-using vec_impl_methods =
-    xcmixin::method_recorder<point_accesser_sized<size_>::template type>::
-        template concat<vec_factory_methods_recorder>::
-            template concat<vec_member_methods_recorder>::template concat<
-                vec_double_operator_methods_recorder>;
+using vec_impl_methods = xcmixin::recorder_concat<
+    xcmixin::method_recorder<point_accesser_sized<size_>::template type>,
+    vec_factory_methods_recorder, vec_member_methods_recorder,
+    vec_double_operator_methods_recorder, vec_single_operator_methods_recorder>;
 
 template <typename T, typename = void>
 struct vec_properties {
