@@ -2,7 +2,11 @@ find_package(GTest CONFIG)
 
 if(NOT GTest_FOUND)
     set(CMAKE_CXX_FLAGS_TMP "${CMAKE_CXX_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-character-conversion")
+
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-character-conversion")
+    endif()
+
     include(FetchContent)
     FetchContent_Declare(
         googletest

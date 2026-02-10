@@ -1,28 +1,13 @@
-#define ENABLE_COL_MAJOR_MAT
-#include <cassert>
 #include <iostream>
-#include <ostream>
+#define ENABLE_COL_MAJOR_MAT
+#include <xcmath/alias.hpp>
 #include <xcmath/mat.hpp>
+#include <xcmath/mat_factories.hpp>
 #include <xcmath/serialize.hpp>
 #include <xcmath/transform_methods.hpp>
 #include <xcmath/vec.hpp>
 
-#include "xcmath/alias.hpp"
-#include "xcmath/mat_factories.hpp"
-
 using namespace xcmath;
-
-consteval auto get_m() {
-    mat3f a{};
-
-    a[0, 0] = 1;
-    a[0, 1] = 2;
-    a[0, 2] = 3;
-    a[1, 0] = 4;
-    a[1, 1] = 5;
-    a[1, 2] = 6;
-    return a;
-}
 
 int main() {
     // auto v = get_m();
@@ -35,15 +20,9 @@ int main() {
     std::cout << v2.cross(v1).sign() << std::endl;
     std::cout << m.trace() << std::endl;
 
-    constexpr auto m1 = get_m();
-
     const auto mmm = mat3f::unit();
     auto vv = mmm[0].clone();
-    // auto m22 = av.all();
-    // av.module();
 
-    auto data = m1[0].cross(m1[1]).cross(m[2].clone());
-    std::cout << data << std::endl;
 
     auto a = m[0].clone();
 
@@ -72,7 +51,6 @@ int main() {
     std::cout << (m33[1] == m33[1]).all() << std::endl;
     std::cout << m33 << std::endl;
     std::cout << m33_2d_.translate(vec2f{1, 2}) * m33 << std::endl;
-    // std::cout << (m33_2d_ == m33_2d_).all() << std::endl;
     std::cout << mat4f::look_at(vec3f{0, 0, 0}, vec3f{0, 0, 1}, vec3f{0, 1, 0})
               << std::endl;
 

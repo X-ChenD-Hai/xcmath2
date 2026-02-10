@@ -15,7 +15,7 @@ namespace xcmath {
 struct EmptyBase {};
 METHOD_DEF_BEGIN(size_method)
 inline constexpr size_t size() const noexcept {
-    return traits::length_properties<Derived>::length;
+    return traits::shape_properties<Derived>::length;
 }
 METHOD_DEF_END()
 METHOD_DEF_BEGIN(clone_method)
@@ -111,7 +111,7 @@ METHOD_DEF_END()
 METHOD_DEF_BEGIN(cross_product_method)
 template <typename T>
     requires(traits::length_eq<Derived, T> &&
-             traits::length_properties<Derived>::length == 3)
+             traits::shape_properties<Derived>::length == 3)
 inline constexpr auto cross(const T& other) const noexcept {
     return decltype(const_self.clone()){
         const_self[1] * other[2] - const_self[2] * other[1],
