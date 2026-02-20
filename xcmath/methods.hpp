@@ -1,6 +1,4 @@
 #pragma once
-#include <vcruntime_typeinfo.h>
-
 #include <cstddef>
 #include <type_traits>
 
@@ -22,7 +20,9 @@ XCMIXIN_DEF_BEGIN(clone_method)
 inline constexpr auto clone() const noexcept { return xcmixin_const_self; }
 XCMIXIN_DEF_END()
 XCMIXIN_DEF_BEGIN(move_method)
-inline constexpr decltype(auto) move() noexcept { return std::move(xcmixin_self); }
+inline constexpr decltype(auto) move() noexcept {
+    return std::move(xcmixin_self);
+}
 XCMIXIN_DEF_END()
 XCMIXIN_DEF_BEGIN(module_method)
 inline constexpr auto module() const noexcept {
@@ -362,4 +362,3 @@ using vec_member_methods_recorder = xcmixin::mixin_recorder<
     round_method, fract_method, sign_method, equal_method, less_than_method,
     greater_than_method, any_method, all_method>;
 }  // namespace xcmath
-
