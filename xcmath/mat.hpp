@@ -7,11 +7,10 @@
 #include "./mat_methods.hpp"
 #include "./traits.hpp"
 #include "./vec.hpp"
-#include "xcmixin/scope_open.hpp"
 
 namespace xcmath {
 using comman_mat_ext_methods =
-    xcmixin::method_recorder<trace_method, determinant_method, transpose_method,
+    xcmixin::mixin_recorder<trace_method, determinant_method, transpose_method,
                              inverse_method>;
 
 template <typename T, size_t row_, size_t col_, bool is_col_major_>
@@ -126,82 +125,97 @@ class mat<T, row_, col_, true> : public mat_impl<T, row_, col_, true> {
     }
 };
 // determinant_method specialization for 2x2 matrix
-IMPL_METHOD_BEGIN(determinant_method, typename T, bool is_col_major_)
-IMPL_METHOD_FOR(mat<T, 2, 2, is_col_major_>)
+XCMIXIN_IMPL_BEGIN(determinant_method, typename T, bool is_col_major_)
+XCMIXIN_IMPL_FOR(mat<T, 2, 2, is_col_major_>)
 inline constexpr T determinant() const noexcept {
-    return const_self.at(0, 0) * const_self.at(1, 1) -
-           const_self.at(0, 1) * const_self.at(1, 0);
+    return xcmixin_const_self.at(0, 0) * xcmixin_const_self.at(1, 1) -
+           xcmixin_const_self.at(0, 1) * xcmixin_const_self.at(1, 0);
 }
-IMPL_METHOD_END()
+XCMIXIN_IMPL_END()
 
 // determinant_method specialization for 3x3 matrix
-IMPL_METHOD_BEGIN(determinant_method, typename T, bool is_col_major_)
-IMPL_METHOD_FOR(mat<T, 3, 3, is_col_major_>)
+XCMIXIN_IMPL_BEGIN(determinant_method, typename T, bool is_col_major_)
+XCMIXIN_IMPL_FOR(mat<T, 3, 3, is_col_major_>)
 inline constexpr T determinant() const noexcept {
-    return const_self.at(0, 0) * (const_self.at(1, 1) * const_self.at(2, 2) -
-                                  const_self.at(1, 2) * const_self.at(2, 1)) -
-           const_self.at(0, 1) * (const_self.at(1, 0) * const_self.at(2, 2) -
-                                  const_self.at(1, 2) * const_self.at(2, 0)) +
-           const_self.at(0, 2) * (const_self.at(1, 0) * const_self.at(2, 1) -
-                                  const_self.at(1, 1) * const_self.at(2, 0));
+    return xcmixin_const_self.at(0, 0) *
+               (xcmixin_const_self.at(1, 1) * xcmixin_const_self.at(2, 2) -
+                xcmixin_const_self.at(1, 2) * xcmixin_const_self.at(2, 1)) -
+           xcmixin_const_self.at(0, 1) *
+               (xcmixin_const_self.at(1, 0) * xcmixin_const_self.at(2, 2) -
+                xcmixin_const_self.at(1, 2) * xcmixin_const_self.at(2, 0)) +
+           xcmixin_const_self.at(0, 2) *
+               (xcmixin_const_self.at(1, 0) * xcmixin_const_self.at(2, 1) -
+                xcmixin_const_self.at(1, 1) * xcmixin_const_self.at(2, 0));
 }
-IMPL_METHOD_END()
+XCMIXIN_IMPL_END()
 
 // determinant_method specialization for 4x4 matrix
-IMPL_METHOD_BEGIN(determinant_method, typename T, bool is_col_major_)
-IMPL_METHOD_FOR(mat<T, 4, 4, is_col_major_>)
+XCMIXIN_IMPL_BEGIN(determinant_method, typename T, bool is_col_major_)
+XCMIXIN_IMPL_FOR(mat<T, 4, 4, is_col_major_>)
 inline constexpr T determinant() const noexcept {
-    return const_self.at(0, 0) *
-               (const_self.at(1, 1) *
-                    (const_self.at(2, 2) * const_self.at(3, 3) -
-                     const_self.at(2, 3) * const_self.at(3, 2)) -
-                const_self.at(1, 2) *
-                    (const_self.at(2, 1) * const_self.at(3, 3) -
-                     const_self.at(2, 3) * const_self.at(3, 1)) +
-                const_self.at(1, 3) *
-                    (const_self.at(2, 1) * const_self.at(3, 2) -
-                     const_self.at(2, 2) * const_self.at(3, 1))) -
-           const_self.at(0, 1) *
-               (const_self.at(1, 0) *
-                    (const_self.at(2, 2) * const_self.at(3, 3) -
-                     const_self.at(2, 3) * const_self.at(3, 2)) -
-                const_self.at(1, 2) *
-                    (const_self.at(2, 0) * const_self.at(3, 3) -
-                     const_self.at(2, 3) * const_self.at(3, 0)) +
-                const_self.at(1, 3) *
-                    (const_self.at(2, 0) * const_self.at(3, 2) -
-                     const_self.at(2, 2) * const_self.at(3, 0))) +
-           const_self.at(0, 2) *
-               (const_self.at(1, 0) *
-                    (const_self.at(2, 1) * const_self.at(3, 3) -
-                     const_self.at(2, 3) * const_self.at(3, 1)) -
-                const_self.at(1, 1) *
-                    (const_self.at(2, 0) * const_self.at(3, 3) -
-                     const_self.at(2, 3) * const_self.at(3, 0)) +
-                const_self.at(1, 3) *
-                    (const_self.at(2, 0) * const_self.at(3, 1) -
-                     const_self.at(2, 1) * const_self.at(3, 0))) -
-           const_self.at(0, 3) *
-               (const_self.at(1, 0) *
-                    (const_self.at(2, 1) * const_self.at(3, 2) -
-                     const_self.at(2, 2) * const_self.at(3, 1)) -
-                const_self.at(1, 1) *
-                    (const_self.at(2, 0) * const_self.at(3, 2) -
-                     const_self.at(2, 2) * const_self.at(3, 0)) +
-                const_self.at(1, 2) *
-                    (const_self.at(2, 0) * const_self.at(3, 1) -
-                     const_self.at(2, 1) * const_self.at(3, 0)));
+    return xcmixin_const_self.at(0, 0) *
+               (xcmixin_const_self.at(1, 1) *
+                    (xcmixin_const_self.at(2, 2) * xcmixin_const_self.at(3, 3) -
+                     xcmixin_const_self.at(2, 3) *
+                         xcmixin_const_self.at(3, 2)) -
+                xcmixin_const_self.at(1, 2) *
+                    (xcmixin_const_self.at(2, 1) * xcmixin_const_self.at(3, 3) -
+                     xcmixin_const_self.at(2, 3) *
+                         xcmixin_const_self.at(3, 1)) +
+                xcmixin_const_self.at(1, 3) *
+                    (xcmixin_const_self.at(2, 1) * xcmixin_const_self.at(3, 2) -
+                     xcmixin_const_self.at(2, 2) *
+                         xcmixin_const_self.at(3, 1))) -
+           xcmixin_const_self.at(0, 1) *
+               (xcmixin_const_self.at(1, 0) *
+                    (xcmixin_const_self.at(2, 2) * xcmixin_const_self.at(3, 3) -
+                     xcmixin_const_self.at(2, 3) *
+                         xcmixin_const_self.at(3, 2)) -
+                xcmixin_const_self.at(1, 2) *
+                    (xcmixin_const_self.at(2, 0) * xcmixin_const_self.at(3, 3) -
+                     xcmixin_const_self.at(2, 3) *
+                         xcmixin_const_self.at(3, 0)) +
+                xcmixin_const_self.at(1, 3) *
+                    (xcmixin_const_self.at(2, 0) * xcmixin_const_self.at(3, 2) -
+                     xcmixin_const_self.at(2, 2) *
+                         xcmixin_const_self.at(3, 0))) +
+           xcmixin_const_self.at(0, 2) *
+               (xcmixin_const_self.at(1, 0) *
+                    (xcmixin_const_self.at(2, 1) * xcmixin_const_self.at(3, 3) -
+                     xcmixin_const_self.at(2, 3) *
+                         xcmixin_const_self.at(3, 1)) -
+                xcmixin_const_self.at(1, 1) *
+                    (xcmixin_const_self.at(2, 0) * xcmixin_const_self.at(3, 3) -
+                     xcmixin_const_self.at(2, 3) *
+                         xcmixin_const_self.at(3, 0)) +
+                xcmixin_const_self.at(1, 3) *
+                    (xcmixin_const_self.at(2, 0) * xcmixin_const_self.at(3, 1) -
+                     xcmixin_const_self.at(2, 1) *
+                         xcmixin_const_self.at(3, 0))) -
+           xcmixin_const_self.at(0, 3) *
+               (xcmixin_const_self.at(1, 0) *
+                    (xcmixin_const_self.at(2, 1) * xcmixin_const_self.at(3, 2) -
+                     xcmixin_const_self.at(2, 2) *
+                         xcmixin_const_self.at(3, 1)) -
+                xcmixin_const_self.at(1, 1) *
+                    (xcmixin_const_self.at(2, 0) * xcmixin_const_self.at(3, 2) -
+                     xcmixin_const_self.at(2, 2) *
+                         xcmixin_const_self.at(3, 0)) +
+                xcmixin_const_self.at(1, 2) *
+                    (xcmixin_const_self.at(2, 0) * xcmixin_const_self.at(3, 1) -
+                     xcmixin_const_self.at(2, 1) *
+                         xcmixin_const_self.at(3, 0)));
 }
-IMPL_METHOD_END()
+XCMIXIN_IMPL_END()
 
 // determinant_method specialization for generic NxN matrix (Gaussian
 // elimination)
-IMPL_METHOD_BEGIN(determinant_method, typename T, size_t size_,
-                  bool is_col_major_)
-IMPL_METHOD_FOR(mat<T, size_, size_, is_col_major_>)
+XCMIXIN_IMPL_BEGIN(determinant_method, typename T, size_t size_,
+                   bool is_col_major_)
+XCMIXIN_IMPL_FOR(mat<T, size_, size_, is_col_major_>)
 inline constexpr T determinant() const noexcept {
     // Copy matrix to avoid modifying original
-    mat<T, size_, size_, is_col_major_> a = const_self;
+    mat<T, size_, size_, is_col_major_> a = xcmixin_const_self;
 
     T det = number_meta::number_properties<T>::unit;
     for (size_t i = 0; i < size_; ++i) {
@@ -243,16 +257,16 @@ inline constexpr T determinant() const noexcept {
 
     return det;
 }
-IMPL_METHOD_END()
-IMPL_FACTORY_BEGIN(impl_from_type_to_zero_factory, typename T, size_t col_,
+XCMIXIN_IMPL_END()
+XCMIXIN_IMPL_BEGIN(impl_from_type_to_zero_factory, typename T, size_t col_,
                    size_t row_, bool is_col_major_)
-IMPL_FACTORY_FOR(mat<T, col_, row_, is_col_major_>)
+XCMIXIN_IMPL_FOR(mat<T, col_, row_, is_col_major_>)
 template <typename Tp>
 static inline constexpr auto impl_from_type_to_zero() noexcept {
     return number_meta::number_properties<
         mat<Tp, col_, row_, is_col_major_>>::zero;
 }
-IMPL_FACTORY_END()
+XCMIXIN_IMPL_END()
 namespace number_meta {
 template <typename T, size_t row_, size_t col_, bool is_col_major_>
 struct number_properties<mat<T, row_, col_, is_col_major_>> {
@@ -280,4 +294,3 @@ mat<T, row_, col_, false>::operator=(const mat<T, row_, col_, true>& other) {
 }
 
 }  // namespace xcmath
-#include "xcmixin/scope_close.hpp"

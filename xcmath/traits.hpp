@@ -1,9 +1,10 @@
 #pragma once
 #include <cstddef>
 #include <type_traits>
+#include <xcmixin/xcmixin.hpp>
 
 #include "./alias.hpp"
-#include "xcmixin/xcmixin.hpp"
+
 namespace xcmath {
 
 namespace details {
@@ -162,7 +163,7 @@ struct shape_properties<mat<T, row_, col_, is_col_major_>>
 template <typename T, size_t row_, size_t col_, bool is_col_major_>
 struct special_mat_ext_methods_recorder;
 
-template <template <typename, typename> typename... methods>
+template <XCMIXIN_MIXIN_TEMPLATE_PARAM... mixin>
 using impl_special_mat_ext_methods =
-    details::return_type<xcmixin::method_recorder<methods...>>;
+    details::return_type<xcmixin::mixin_recorder<mixin...>>;
 }  // namespace xcmath

@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <initializer_list>
 #include <type_traits>
+#include <xcmixin/xcmixin.hpp>
 
 #include "./alias.hpp"
 #include "./factories.hpp"
@@ -9,12 +10,11 @@
 #include "./number_meta.hpp"
 #include "./operators.hpp"
 #include "./point_accesser.hpp"  // IWYU pragma: keep
-#include "xcmixin/scope_open.hpp"
-#include "xcmixin/xcmixin.hpp"
+
 namespace xcmath {
 template <typename T, size_t size_>
 using vec_impl_methods = xcmixin::recorder_concat<
-    xcmixin::method_recorder<point_accesser_sized<size_>::template type>,
+    xcmixin::mixin_recorder<point_accesser_sized<size_>::template type>,
     vec_factory_methods_recorder, vec_member_methods_recorder,
     vec_double_operator_methods_recorder, vec_single_operator_methods_recorder>;
 
@@ -32,7 +32,7 @@ struct vec_properties<T, std::void_t<typename T::data_type>> {
 
 template <typename Derived, typename T, size_t size_, typename... ext_recorders>
 class vec_impl
-    : public xcmixin::impl_methods_recorders<Derived, ext_recorders...,
+    : public xcmixin::impl_recorder<Derived, ext_recorders...,
                                              vec_impl_methods<T, size_>> {
    public:
     using item_type = T;
@@ -86,7 +86,7 @@ class vec_impl
 
 template <typename T, size_t size_, size_t stride_>
 struct const_vec_view
-    : xcmixin::impl_methods_recorders<const_vec_view<T, size_, stride_>,
+    : xcmixin::impl_recorder<const_vec_view<T, size_, stride_>,
                                       vec_impl_methods<T, size_>> {
     static inline constexpr size_t size() noexcept { return size_; }
 
@@ -101,7 +101,7 @@ struct const_vec_view
 };
 
 template <typename T, size_t size_, size_t stride_>
-struct vec_view : xcmixin::impl_methods_recorders<vec_view<T, size_, stride_>,
+struct vec_view : xcmixin::impl_recorder<vec_view<T, size_, stride_>,
                                                   vec_impl_methods<T, size_>> {
     static inline constexpr size_t size() noexcept { return size_; }
 
@@ -130,51 +130,51 @@ struct vec_view : xcmixin::impl_methods_recorders<vec_view<T, size_, stride_>,
     T* ptr_;
 };
 
-IMPL_METHOD_BEGIN(clone_method, typename T, size_t size_, size_t stride_)
-IMPL_METHOD_FOR(vec_view<T, size_, stride_>)
+XCMIXIN_IMPL_BEGIN(clone_method, typename T, size_t size_, size_t stride_)
+XCMIXIN_IMPL_FOR(vec_view<T, size_, stride_>)
 inline constexpr auto clone() const noexcept {
     vec<T, size_> result;
     for (size_t i = 0; i < size_; ++i) {
-        result[i] = const_self[i];
+        result[i] = xcmixin_const_self[i];
     }
     return result;
 }
-IMPL_METHOD_END()
+XCMIXIN_IMPL_END()
 
-IMPL_METHOD_BEGIN(clone_method, typename T, size_t size_, size_t stride_)
-IMPL_METHOD_FOR(const_vec_view<T, size_, stride_>)
+XCMIXIN_IMPL_BEGIN(clone_method, typename T, size_t size_, size_t stride_)
+XCMIXIN_IMPL_FOR(const_vec_view<T, size_, stride_>)
 inline constexpr auto clone() const noexcept {
     vec<T, size_> result;
     for (size_t i = 0; i < size_; ++i) {
-        result[i] = const_self[i];
+        result[i] = xcmixin_const_self[i];
     }
     return result;
 }
-IMPL_METHOD_END()
+XCMIXIN_IMPL_END()
 
-IMPL_FACTORY_BEGIN(impl_from_type_to_zero_factory, typename T, size_t size_)
-IMPL_FACTORY_FOR(vec<T, size_>)
+XCMIXIN_IMPL_BEGIN(impl_from_type_to_zero_factory, typename T, size_t size_)
+XCMIXIN_IMPL_FOR(vec<T, size_>)
 template <typename Tp>
 static inline constexpr auto impl_from_type_to_zero() noexcept {
     return number_meta::number_properties<vec<Tp, size_>>::zero;
 }
-IMPL_FACTORY_END()
-IMPL_FACTORY_BEGIN(impl_from_type_to_zero_factory, typename T, size_t size_,
+XCMIXIN_IMPL_END()
+XCMIXIN_IMPL_BEGIN(impl_from_type_to_zero_factory, typename T, size_t size_,
                    size_t stride_)
-IMPL_FACTORY_FOR(vec_view<T, size_, stride_>)
+XCMIXIN_IMPL_FOR(vec_view<T, size_, stride_>)
 template <typename Tp>
 static inline constexpr auto impl_from_type_to_zero() noexcept {
     return number_meta::number_properties<vec<Tp, size_>>::zero;
 }
-IMPL_FACTORY_END()
-IMPL_FACTORY_BEGIN(impl_from_type_to_zero_factory, typename T, size_t size_,
+XCMIXIN_IMPL_END()
+XCMIXIN_IMPL_BEGIN(impl_from_type_to_zero_factory, typename T, size_t size_,
                    size_t stride_)
-IMPL_FACTORY_FOR(const_vec_view<T, size_, stride_>)
+XCMIXIN_IMPL_FOR(const_vec_view<T, size_, stride_>)
 template <typename Tp>
 static inline constexpr auto impl_from_type_to_zero() noexcept {
     return number_meta::number_properties<vec<Tp, size_>>::zero;
 }
-IMPL_FACTORY_END()
+XCMIXIN_IMPL_END()
 
 template <typename T, size_t size_>
 class vec : public vec_impl<vec<T, size_>, T, size_> {
@@ -182,12 +182,12 @@ class vec : public vec_impl<vec<T, size_>, T, size_> {
     using vec_impl<vec<T, size_>, T, size_>::vec_impl;
 };
 
-IMPL_METHOD_BEGIN(unit_factory, typename T, size_t size_)
-IMPL_METHOD_FOR(vec<T, size_>)
+XCMIXIN_IMPL_BEGIN(unit_factory, typename T, size_t size_)
+XCMIXIN_IMPL_FOR(vec<T, size_>)
 inline static constexpr auto unit() noexcept {
     static_assert(false, "vec not supported unit_factory");
 }
-IMPL_METHOD_END()
+XCMIXIN_IMPL_END()
 
 namespace number_meta {
 template <typename T, size_t size_>
@@ -199,4 +199,3 @@ struct number_properties<vec<T, size_>> {
 
 }  // namespace xcmath
 
-#include "xcmixin/scope_close.hpp"

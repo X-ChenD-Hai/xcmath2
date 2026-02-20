@@ -1,59 +1,58 @@
 #pragma once
 #include <type_traits>
+#include <xcmixin/xcmixin.hpp>
 
 #include "./functions.hpp"
 #include "./number_meta.hpp"
 #include "./traits.hpp"
 #include "xcmath/functions.hpp"
-// open scope
-#include "xcmixin/scope_open.hpp"
-#include "xcmixin/xcmixin.hpp"
+
 
 namespace xcmath {
-METHOD_DEF_BEGIN(trace_method)
+XCMIXIN_DEF_BEGIN(trace_method)
 constexpr auto trace() const noexcept {
-    using result_type = std::decay_t<decltype(const_self.at(0, 0))>;
+    using result_type = std::decay_t<decltype(xcmixin_const_self.at(0, 0))>;
     result_type result = number_meta::number_properties<result_type>::zero;
-    auto size = const_self.size() < const_self[0].size() ? const_self.size()
-                                                         : const_self[0].size();
+    auto size = xcmixin_const_self.size() < xcmixin_const_self[0].size() ? xcmixin_const_self.size()
+                                                         : xcmixin_const_self[0].size();
     for (size_t i = 0; i < size; ++i) {
-        result += const_self.at(i, i);
+        result += xcmixin_const_self.at(i, i);
     }
     return result;
 }
-METHOD_DEF_END()
+XCMIXIN_DEF_END()
 
 // determinant_method - base template (generic Gaussian elimination for any
 // size)
-METHOD_DEF_BEGIN(determinant_method)
+XCMIXIN_DEF_BEGIN(determinant_method)
 constexpr auto determinant() const noexcept {
-    using result_type = std::decay_t<decltype(const_self.at(0, 0))>;
+    using result_type = std::decay_t<decltype(xcmixin_const_self.at(0, 0))>;
     constexpr size_t size_ = sizeof(Derived) == 0 ? 0 : 0;  // placeholder
     static_assert(sizeof(Derived) == 0,
                   "determinant() requires matrix specialization");
     return result_type{};
 }
-METHOD_DEF_END()
+XCMIXIN_DEF_END()
 
-METHOD_DEF_BEGIN(transpose_method)
+XCMIXIN_DEF_BEGIN(transpose_method)
 constexpr auto transpose() const noexcept {
-    using value_type = std::decay_t<decltype(const_self.at(0, 0))>;
+    using value_type = std::decay_t<decltype(xcmixin_const_self.at(0, 0))>;
     constexpr size_t row = traits::mat_dims<Derived>::rows;
     constexpr size_t col = traits::mat_dims<Derived>::cols;
     constexpr bool is_col_major = traits::mat_dims<Derived>::is_col_major;
     mat<value_type, col, row, !is_col_major> result;
     for (size_t i = 0; i < row; ++i) {
         for (size_t j = 0; j < col; ++j) {
-            result.at(j, i) = const_self.at(i, j);
+            result.at(j, i) = xcmixin_const_self.at(i, j);
         }
     }
     return result;
 }
-METHOD_DEF_END()
+XCMIXIN_DEF_END()
 
-METHOD_DEF_BEGIN(inverse_method)
+XCMIXIN_DEF_BEGIN(inverse_method)
 constexpr auto inverse() const noexcept {
-    using value_type = std::decay_t<decltype(const_self.at(0, 0))>;
+    using value_type = std::decay_t<decltype(xcmixin_const_self.at(0, 0))>;
     constexpr size_t row = traits::mat_dims<Derived>::rows;
     constexpr size_t col = traits::mat_dims<Derived>::cols;
     constexpr bool is_col_major = traits::mat_dims<Derived>::is_col_major;
@@ -63,17 +62,17 @@ constexpr auto inverse() const noexcept {
 
     // 2x2 matrix inverse
     if constexpr (row == 2 && col == 2) {
-        value_type det = const_self.at(0, 0) * const_self.at(1, 1) -
-                         const_self.at(0, 1) * const_self.at(1, 0);
-        result.at(0, 0) = const_self.at(1, 1) / det;
-        result.at(0, 1) = -const_self.at(0, 1) / det;
-        result.at(1, 0) = -const_self.at(1, 0) / det;
-        result.at(1, 1) = const_self.at(0, 0) / det;
+        value_type det = xcmixin_const_self.at(0, 0) * xcmixin_const_self.at(1, 1) -
+                         xcmixin_const_self.at(0, 1) * xcmixin_const_self.at(1, 0);
+        result.at(0, 0) = xcmixin_const_self.at(1, 1) / det;
+        result.at(0, 1) = -xcmixin_const_self.at(0, 1) / det;
+        result.at(1, 0) = -xcmixin_const_self.at(1, 0) / det;
+        result.at(1, 1) = xcmixin_const_self.at(0, 0) / det;
     }
     // 3x3 matrix inverse
     else if constexpr (row == 3 && col == 3) {
         value_type det = xcmath::determinant(
-            mat<value_type, 3, 3, is_col_major>{const_self});
+            mat<value_type, 3, 3, is_col_major>{xcmixin_const_self});
 
         // Compute cofactors and adjugate matrix
         for (size_t i = 0; i < 3; ++i) {
@@ -86,7 +85,7 @@ constexpr auto inverse() const noexcept {
                     size_t minor_col = 0;
                     for (size_t c = 0; c < 3; ++c) {
                         if (c == j) continue;
-                        minor.at(minor_row, minor_col) = const_self.at(r, c);
+                        minor.at(minor_row, minor_col) = xcmixin_const_self.at(r, c);
                         ++minor_col;
                     }
                     ++minor_row;
@@ -101,7 +100,7 @@ constexpr auto inverse() const noexcept {
     // 4x4 matrix inverse
     else if constexpr (row == 4 && col == 4) {
         value_type det = xcmath::determinant(
-            mat<value_type, 4, 4, is_col_major>{const_self});
+            mat<value_type, 4, 4, is_col_major>{xcmixin_const_self});
 
         // Compute cofactors and adjugate matrix
         for (size_t i = 0; i < 4; ++i) {
@@ -114,7 +113,7 @@ constexpr auto inverse() const noexcept {
                     size_t minor_col = 0;
                     for (size_t c = 0; c < 4; ++c) {
                         if (c == j) continue;
-                        minor.at(minor_row, minor_col) = const_self.at(r, c);
+                        minor.at(minor_row, minor_col) = xcmixin_const_self.at(r, c);
                         ++minor_col;
                     }
                     ++minor_row;
@@ -131,32 +130,32 @@ constexpr auto inverse() const noexcept {
 
     return result;
 }
-METHOD_DEF_END()
+XCMIXIN_DEF_END()
 
-METHOD_DECLARE(rotate_method);
-METHOD_DECLARE(rotate_x_method);
-METHOD_DECLARE(rotate_y_method);
-METHOD_DECLARE(rotate_z_method);
-METHOD_DECLARE(shear_method);
-METHOD_DECLARE(translate_method);
-METHOD_DECLARE(scale_method);
-FACTORY_DECLARE(look_at_factory);
-FACTORY_DECLARE(perspective_factory);
-FACTORY_DECLARE(ortho_factory);
-FACTORY_DECLARE(frustum_factory);
+XCMIXIN_DECLARE(rotate_method);
+XCMIXIN_DECLARE(rotate_x_method);
+XCMIXIN_DECLARE(rotate_y_method);
+XCMIXIN_DECLARE(rotate_z_method);
+XCMIXIN_DECLARE(shear_method);
+XCMIXIN_DECLARE(translate_method);
+XCMIXIN_DECLARE(scale_method);
+XCMIXIN_DECLARE(look_at_factory);
+XCMIXIN_DECLARE(perspective_factory);
+XCMIXIN_DECLARE(ortho_factory);
+XCMIXIN_DECLARE(frustum_factory);
 using mat4f_ext_methods_recorder =
-    xcmixin::method_recorder<look_at_factory, perspective_factory,
+    xcmixin::mixin_recorder<look_at_factory, perspective_factory,
                              ortho_factory, frustum_factory>;
 
 using mat_transform_methods_recorder =
-    xcmixin::method_recorder<rotate_method, rotate_x_method, rotate_y_method,
+    xcmixin::mixin_recorder<rotate_method, rotate_x_method, rotate_y_method,
                              rotate_z_method, shear_method, translate_method,
                              scale_method>;
 
 template <typename T, bool is_col_major_>
     requires(std::is_floating_point_v<T>)
 struct special_mat_ext_methods_recorder<T, 2, 2, is_col_major_>
-    : details::return_type<xcmixin::method_recorder<rotate_method>> {};
+    : details::return_type<xcmixin::mixin_recorder<rotate_method>> {};
 template <typename T, bool is_col_major_>
     requires(std::is_floating_point_v<T>)
 struct special_mat_ext_methods_recorder<T, 3, 3, is_col_major_>
@@ -168,4 +167,3 @@ struct special_mat_ext_methods_recorder<T, 4, 4, is_col_major_>
           mat_transform_methods_recorder, mat4f_ext_methods_recorder>> {};
 }  // namespace xcmath
 
-#include "xcmixin/scope_close.hpp"

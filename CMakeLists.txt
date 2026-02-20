@@ -15,6 +15,7 @@ include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
 include(${CMAKE_SOURCE_DIR}/cmake/format.cmake)
+add_subdirectory(third_party/xcmixin)
 add_subdirectory(xcmath)
 
 if(${BUILD_EXAMPLES})

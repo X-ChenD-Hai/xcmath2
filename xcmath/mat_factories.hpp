@@ -3,10 +3,9 @@
 #include "./mat_methods.hpp"
 
 // open scope
-#include "xcmixin/scope_open.hpp"
 namespace xcmath {
-IMPL_FACTORY_BEGIN(look_at_factory, typename T, bool is_col_major)
-IMPL_FACTORY_FOR(mat<T, 4, 4, is_col_major>)
+XCMIXIN_IMPL_BEGIN(look_at_factory, typename T, bool is_col_major)
+XCMIXIN_IMPL_FOR(mat<T, 4, 4, is_col_major>)
 template <typename Tp>
 static constexpr auto look_at(const Tp& eye, const Tp& center, const Tp& up) {
     auto result = Self::unit();
@@ -28,10 +27,10 @@ static constexpr auto look_at(const Tp& eye, const Tp& center, const Tp& up) {
     result.at(2, 2) = -forward[2];
     return result;
 }
-IMPL_FACTORY_END();
+XCMIXIN_IMPL_END();
 
-IMPL_FACTORY_BEGIN(perspective_factory, typename T, bool is_col_major)
-IMPL_FACTORY_FOR(mat<T, 4, 4, is_col_major>)
+XCMIXIN_IMPL_BEGIN(perspective_factory, typename T, bool is_col_major)
+XCMIXIN_IMPL_FOR(mat<T, 4, 4, is_col_major>)
 template <typename Tp>
 static constexpr auto perspective(Tp fov, Tp aspect, Tp near, Tp far) {
     auto result = Self::unit();
@@ -47,10 +46,10 @@ static constexpr auto perspective(Tp fov, Tp aspect, Tp near, Tp far) {
     result.at(2, 3) = -2.0f * f * n / (f - n);
     result.at(3, 2) = -1.0f;
 }
-FACTORY_DEF_END()
+XCMIXIN_IMPL_END()
 
-IMPL_FACTORY_BEGIN(ortho_factory, typename T, bool is_col_major)
-IMPL_FACTORY_FOR(mat<T, 4, 4, is_col_major>)
+XCMIXIN_IMPL_BEGIN(ortho_factory, typename T, bool is_col_major)
+XCMIXIN_IMPL_FOR(mat<T, 4, 4, is_col_major>)
 template <typename Tp>
 static constexpr auto ortho(Tp left, Tp right, Tp bottom, Tp top, Tp near,
                             Tp far) {
@@ -66,10 +65,10 @@ static constexpr auto ortho(Tp left, Tp right, Tp bottom, Tp top, Tp near,
     result.at(2, 3) = -(far + near) / fn;
     return result;
 }
-IMPL_FACTORY_END();
+XCMIXIN_IMPL_END();
 
-IMPL_FACTORY_BEGIN(frustum_factory, typename T, bool is_col_major)
-IMPL_FACTORY_FOR(mat<T, 4, 4, is_col_major>)
+XCMIXIN_IMPL_BEGIN(frustum_factory, typename T, bool is_col_major)
+XCMIXIN_IMPL_FOR(mat<T, 4, 4, is_col_major>)
 template <typename Tp>
 static constexpr auto frustum(Tp left, Tp right, Tp bottom, Tp top, Tp near,
                               Tp far) {
@@ -86,7 +85,6 @@ static constexpr auto frustum(Tp left, Tp right, Tp bottom, Tp top, Tp near,
     result.at(3, 2) = static_cast<Tp>(-1);
     return result;
 }
-IMPL_FACTORY_END();
+XCMIXIN_IMPL_END();
 
 }  // namespace xcmath
-#include "xcmixin/scope_close.hpp"

@@ -6,14 +6,13 @@
 #include "./functions.hpp"
 #include "./mat_methods.hpp"
 #include "./traits.hpp"
-#include "xcmixin/scope_open.hpp"
 
 namespace xcmath {
 
-IMPL_METHOD_BEGIN_WITH_REQUIRES(rotate_method,
+XCMIXIN_IMPL_BEGIN_WITH_REQUIRES(rotate_method,
                                 (traits::value_in_range<size_, 2, 4>),
                                 typename T, size_t size_, bool is_col_major_)
-IMPL_METHOD_FOR(mat<T, size_, size_, is_col_major_>)
+XCMIXIN_IMPL_FOR(mat<T, size_, size_, is_col_major_>)
 template <typename ATp, typename VTp>
     requires(traits::length_in_range<VTp, 3, 4> &&
              std::is_floating_point_v<ATp> &&
@@ -36,7 +35,7 @@ auto rotate(const ATp angle, const VTp& axis) const noexcept {
     res.at(2, 0) = t * _axis[0] * _axis[2] - s * _axis[1];
     res.at(2, 1) = t * _axis[1] * _axis[2] + s * _axis[0];
     res.at(2, 2) = c + t * _axis[2] * _axis[2];
-    return res * const_self;
+    return res * xcmixin_const_self;
 }
 template <typename ATp>
     requires(std::is_floating_point_v<ATp> &&
@@ -46,15 +45,15 @@ auto rotate(ATp angle) {
     auto res = Self::unit();
     res.at(1, 1) = res.at(0, 0) = xcmath::cos(angle);
     res.at(0, 1) = -(res.at(1, 0) = xcmath::sin(angle));
-    return res * const_self;
+    return res * xcmixin_const_self;
 }
 
-IMPL_METHOD_END();
+XCMIXIN_IMPL_END();
 
-IMPL_METHOD_BEGIN_WITH_REQUIRES(rotate_x_method,
+XCMIXIN_IMPL_BEGIN_WITH_REQUIRES(rotate_x_method,
                                 (traits::value_in_range<size_, 3, 4>),
                                 typename T, size_t size_, bool is_col_major_)
-IMPL_METHOD_FOR(mat<T, size_, size_, is_col_major_>)
+XCMIXIN_IMPL_FOR(mat<T, size_, size_, is_col_major_>)
 template <typename ATp>
     requires(std::is_floating_point_v<ATp>)
 constexpr auto rotate_x(ATp angle) {
@@ -91,14 +90,14 @@ constexpr auto rotate_x(ATp angle) {
         rot.at(3, 2) = 0;
         rot.at(3, 3) = 1;
     }
-    return rot * const_self;
+    return rot * xcmixin_const_self;
 }
-IMPL_METHOD_END();
+XCMIXIN_IMPL_END();
 
-IMPL_METHOD_BEGIN_WITH_REQUIRES(rotate_y_method,
+XCMIXIN_IMPL_BEGIN_WITH_REQUIRES(rotate_y_method,
                                 (traits::value_in_range<size_, 3, 4>),
                                 typename T, size_t size_, bool is_col_major_)
-IMPL_METHOD_FOR(mat<T, size_, size_, is_col_major_>)
+XCMIXIN_IMPL_FOR(mat<T, size_, size_, is_col_major_>)
 template <typename ATp>
     requires(std::is_floating_point_v<ATp>)
 constexpr auto rotate_y(ATp angle) {
@@ -135,14 +134,14 @@ constexpr auto rotate_y(ATp angle) {
         rot.at(3, 2) = 0;
         rot.at(3, 3) = 1;
     }
-    return rot * const_self;
+    return rot * xcmixin_const_self;
 }
-IMPL_METHOD_END();
+XCMIXIN_IMPL_END();
 
-IMPL_METHOD_BEGIN_WITH_REQUIRES(rotate_z_method,
+XCMIXIN_IMPL_BEGIN_WITH_REQUIRES(rotate_z_method,
                                 (traits::value_in_range<size_, 2, 4>),
                                 typename T, size_t size_, bool is_col_major_)
-IMPL_METHOD_FOR(mat<T, size_, size_, is_col_major_>)
+XCMIXIN_IMPL_FOR(mat<T, size_, size_, is_col_major_>)
 template <typename ATp>
     requires(std::is_floating_point_v<ATp>)
 constexpr auto rotate_z(ATp angle) {
@@ -184,18 +183,18 @@ constexpr auto rotate_z(ATp angle) {
         rot.at(3, 2) = 0;
         rot.at(3, 3) = 1;
     }
-    return rot * const_self;
+    return rot * xcmixin_const_self;
 }
-IMPL_METHOD_END();
+XCMIXIN_IMPL_END();
 
-IMPL_METHOD_BEGIN_WITH_REQUIRES(shear_method,
+XCMIXIN_IMPL_BEGIN_WITH_REQUIRES(shear_method,
                                 (traits::value_in_range<size_, 3, 4>),
                                 typename T, size_t size_, bool is_col_major_)
-IMPL_METHOD_FOR(mat<T, size_, size_, is_col_major_>)
+XCMIXIN_IMPL_FOR(mat<T, size_, size_, is_col_major_>)
 template <class VTp>
     requires(traits::length_in_range<VTp, 6, 6>)
 constexpr auto shear(const VTp& factors) {
-    auto res = const_self.clone();
+    auto res = xcmixin_const_self.clone();
     // factors = [sh_xy, sh_xz, sh_yx, sh_yz, sh_zx, sh_zy]
     res.at(0, 1) += factors[0];  // sh_xy
     res.at(0, 2) += factors[1];  // sh_xz
@@ -205,31 +204,31 @@ constexpr auto shear(const VTp& factors) {
     res.at(2, 1) += factors[5];  // sh_zy
     return res;
 }
-IMPL_METHOD_END();
+XCMIXIN_IMPL_END();
 
-IMPL_METHOD_BEGIN_WITH_REQUIRES(translate_method,
+XCMIXIN_IMPL_BEGIN_WITH_REQUIRES(translate_method,
                                 (traits::value_in_range<size_, 3, 4>),
                                 typename T, size_t size_, bool is_col_major_)
-IMPL_METHOD_FOR(mat<T, size_, size_, is_col_major_>)
+XCMIXIN_IMPL_FOR(mat<T, size_, size_, is_col_major_>)
 template <class VTp>
     requires(traits::length_in_range<VTp, size_ - 1, size_>)
 constexpr auto translate(const VTp& v) {
-    auto res = const_self.clone();
+    auto res = xcmixin_const_self.clone();
     res.at(0, size_ - 1) += v[0];
     res.at(1, size_ - 1) += v[1];
     if constexpr (size_ == 4) res.at(2, size_ - 1) += v[2];
     return res;
 }
-IMPL_METHOD_END();
+XCMIXIN_IMPL_END();
 
-IMPL_METHOD_BEGIN_WITH_REQUIRES(scale_method,
+XCMIXIN_IMPL_BEGIN_WITH_REQUIRES(scale_method,
                                 (traits::value_in_range<size_, 3, 4>),
                                 typename T, size_t size_, bool is_col_major_)
-IMPL_METHOD_FOR(mat<T, size_, size_, is_col_major_>)
+XCMIXIN_IMPL_FOR(mat<T, size_, size_, is_col_major_>)
 template <class VTp>
     requires(traits::length_in_range<VTp, 3, 4>)
 constexpr auto scale(const VTp& v) {
-    auto res = const_self.clone();
+    auto res = xcmixin_const_self.clone();
     res.at(0, 0) *= v[0];
     res.at(1, 1) *= v[1];
     if constexpr (size_ == 4) res.at(2, 2) *= v[2];
@@ -238,14 +237,13 @@ constexpr auto scale(const VTp& v) {
 template <class VTp>
     requires(std::is_floating_point_v<VTp>)
 constexpr auto scale(VTp s) {
-    auto res = const_self.clone();
+    auto res = xcmixin_const_self.clone();
     res.at(0, 0) *= s;
     res.at(1, 1) *= s;
     if constexpr (size_ == 4) res.at(2, 2) *= s;
     return res;
 }
-IMPL_METHOD_END();
+XCMIXIN_IMPL_END();
 
 }  // namespace xcmath
 
-#include "xcmixin/scope_close.hpp"

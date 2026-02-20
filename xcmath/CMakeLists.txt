@@ -1,5 +1,6 @@
 set(math_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
 add_library(xcmath INTERFACE)
+target_link_libraries(xcmath INTERFACE xcmixin)
 target_include_directories(xcmath PUBLIC INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}>

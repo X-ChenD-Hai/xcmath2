@@ -3,7 +3,6 @@
 #include <cmath>
 
 #include "./traits.hpp"
-#include "xcmixin/scope_open.hpp"
 
 namespace xcmath {
 
@@ -348,4 +347,3 @@ inline constexpr T slerp(const T& q1, const T& q2, traits::element_type<T> t) {
 
 }  // namespace xcmath
 
-#include "xcmixin/scope_close.hpp"
