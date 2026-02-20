@@ -31,9 +31,8 @@ struct vec_properties<T, std::void_t<typename T::data_type>> {
 };
 
 template <typename Derived, typename T, size_t size_, typename... ext_recorders>
-class vec_impl
-    : public xcmixin::impl_recorder<Derived, ext_recorders...,
-                                             vec_impl_methods<T, size_>> {
+class vec_impl : public xcmixin::impl_recorder<Derived, ext_recorders...,
+                                               vec_impl_methods<T, size_>> {
    public:
     using item_type = T;
     using data_type = vec_properties<T>::data_type;
@@ -87,7 +86,7 @@ class vec_impl
 template <typename T, size_t size_, size_t stride_>
 struct const_vec_view
     : xcmixin::impl_recorder<const_vec_view<T, size_, stride_>,
-                                      vec_impl_methods<T, size_>> {
+                             vec_impl_methods<T, size_>> {
     static inline constexpr size_t size() noexcept { return size_; }
 
     constexpr const_vec_view(const T* data) : ptr_(data) {}
@@ -95,6 +94,7 @@ struct const_vec_view
         assert_index(idx, size_);
         return ptr_[idx * stride_];
     }
+    xcmixin_init_template(const_vec_view<T, size_, stride_>);
 
    protected:
     const T* ptr_;
@@ -102,7 +102,7 @@ struct const_vec_view
 
 template <typename T, size_t size_, size_t stride_>
 struct vec_view : xcmixin::impl_recorder<vec_view<T, size_, stride_>,
-                                                  vec_impl_methods<T, size_>> {
+                                         vec_impl_methods<T, size_>> {
     static inline constexpr size_t size() noexcept { return size_; }
 
     constexpr vec_view(T* data) : ptr_(data) {}
@@ -125,6 +125,7 @@ struct vec_view : xcmixin::impl_recorder<vec_view<T, size_, stride_>,
         }
         return *this;
     }
+    xcmixin_init_template(vec_view<T, size_, stride_>);
 
    protected:
     T* ptr_;
@@ -180,6 +181,7 @@ template <typename T, size_t size_>
 class vec : public vec_impl<vec<T, size_>, T, size_> {
    public:
     using vec_impl<vec<T, size_>, T, size_>::vec_impl;
+    xcmixin_init_template(vec<T, size_>);
 };
 
 XCMIXIN_IMPL_BEGIN(unit_factory, typename T, size_t size_)
@@ -198,4 +200,3 @@ struct number_properties<vec<T, size_>> {
 }  // namespace number_meta
 
 }  // namespace xcmath
-

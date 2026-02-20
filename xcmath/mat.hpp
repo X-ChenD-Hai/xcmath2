@@ -78,6 +78,7 @@ class mat<T, row_, col_, false> : public mat_impl<T, row_, col_, false> {
     inline constexpr const T& at(size_t i, size_t j) const {
         return Super::data_[i][j];
     }
+    xcmixin_init_template(mat<T, row_, col_, false>);
 };
 
 template <typename T, size_t row_, size_t col_>
@@ -123,6 +124,7 @@ class mat<T, row_, col_, true> : public mat_impl<T, row_, col_, true> {
         }
         return *this;
     }
+    xcmixin_init_template(mat<T, row_, col_, true>);
 };
 // determinant_method specialization for 2x2 matrix
 XCMIXIN_IMPL_BEGIN(determinant_method, typename T, bool is_col_major_)
