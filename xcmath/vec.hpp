@@ -184,7 +184,7 @@ class vec : public vec_impl<vec<T, size_>, T, size_> {
 
 IMPL_METHOD_BEGIN(unit_factory, typename T, size_t size_)
 IMPL_METHOD_FOR(vec<T, size_>)
-inline static constexpr size_t unit() noexcept {
+inline static constexpr auto unit() noexcept {
     static_assert(false, "vec not supported unit_factory");
 }
 IMPL_METHOD_END()

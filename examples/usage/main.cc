@@ -23,7 +23,6 @@ int main() {
     const auto mmm = mat3f::unit();
     auto vv = mmm[0].clone();
 
-
     auto a = m[0].clone();
 
     std::cout << vec3f::zero() << std::endl;
@@ -44,7 +43,9 @@ int main() {
               << std::endl;
     std::cout << m33.rotate(angle, vec3f{0, 0, 1}) * vec3_ << std::endl;
     std::cout << m33_2d_.rotate(angle).scale(2.f) * vec3_2d_ << std::endl;
+#if XCMATH_CXX_STD >= 202302L
     std::cout << m33_2d_[1, 2] << std::endl;
+#endif
     std::cout << vec3_ << m33[1] << std::endl;
     std::cout << (vec3_ == m33[1]).all() << std::endl;
     std::cout << vec3_ << m33[1] << std::endl;
