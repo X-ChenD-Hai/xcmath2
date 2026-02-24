@@ -5,7 +5,10 @@
             "name": "debug",
             "binaryDir": "build/${presetName}",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_BUILD_TYPE": "Debug",
+                "XCMIXIN_BUILD_EXAMPLES": false,
+                "BUILD_EXAMPLES": true,
+                "BUILD_TESTING": true
             }
         },
         {
@@ -13,9 +16,10 @@
             "inherits": [
                 "debug"
             ],
-            "binaryDir": "build/${presetName}",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "MinSizeRel"
+                "CMAKE_BUILD_TYPE": "MinSizeRel",
+                "BUILD_EXAMPLES": false,
+                "BUILD_TESTING": false
             }
         }
     ]
