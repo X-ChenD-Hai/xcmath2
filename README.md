@@ -11,6 +11,10 @@
 
 **xcmath** is a modern C++20 header-only linear algebra library providing `vec<T, N>` and `mat<T, R, C>` types with a CRTP-based method composition framework. Designed for the xcal project.
 
+## License
+
+Licensed under the [MIT License](./LICENSE).
+
 ## Core Features
 
 - **Header-Only**: No build required, just include and use
@@ -299,3 +303,7 @@ xcmath/
   interpolation.hpp    # Interpolation functions
   serialize.hpp        # Stream output support
 ```
+
+## Roadmap
+
+See [TODO](./TODO) for development progress and planned features.
