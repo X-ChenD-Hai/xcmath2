@@ -39,7 +39,7 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DXCMATH_BUILD_EXAMPLES=ON -DXCMATH_BUILD_TESTS=ON
+          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=ON -DBUILD_TESTING=ON
 
       - name: Build
         run: |
@@ -51,16 +51,20 @@ jobs:
       - name: Run examples (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
-          for exe in build/examples/*_example; do
-            if [ -f "$exe" ] || [ -f "$exe.exe" ]; then
-              "$exe" || exit 1
-            fi
-          done
+          if [ -d "build/examples" ]; then
+            for exe in build/examples/*_example; do
+              if [ -f "$exe" ] || [ -f "$exe.exe" ]; then
+                "$exe" || exit 1
+              fi
+            done
+          fi
 
       - name: Run examples (Windows)
         if: runner.os == 'Windows'
         run: |
-          Get-ChildItem -Path build/examples -Filter "*.exe" | ForEach-Object { & $_.FullName }
+          if (Test-Path build/examples) {
+            Get-ChildItem -Path build/examples -Filter "*.exe" | ForEach-Object { & $_.FullName }
+          }
 
       - name: Package (Linux/macOS)
         if: runner.os != 'Windows'

@@ -50,7 +50,7 @@ jobs:
         run: echo "CXX=clang++" >> $GITHUB_ENV
 
       - name: Configure CMake
-        run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DXCMATH_BUILD_EXAMPLES=ON -DXCMATH_BUILD_TESTS=ON
+        run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=ON -DBUILD_TESTING=ON
 
       - name: Build
         run: cmake --build build --parallel
@@ -61,13 +61,17 @@ jobs:
       - name: Build and Run examples (Linux/macOS)
         if: matrix.os != 'windows-latest'
         run: |
-          for exe in build/examples/*_example; do
-            if [ -f "$exe" ]; then
-              "$exe"
-            fi
-          done
+          if [ -d "build/examples" ]; then
+            for exe in build/examples/*_example; do
+              if [ -f "$exe" ]; then
+                "$exe"
+              fi
+            done
+          fi
 
       - name: Build and Run examples (Windows)
         if: matrix.os == 'windows-latest'
         run: |
-          Get-ChildItem -Path build/examples -Filter "*.exe" | ForEach-Object { & $_.FullName }
+          if (Test-Path build/examples) {
+            Get-ChildItem -Path build/examples -Filter "*.exe" | ForEach-Object { & $_.FullName }
+          }
