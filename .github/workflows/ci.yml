@@ -20,9 +20,6 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         compiler: [clang]
-        include:
-          - os: ubuntu-latest
-            compiler: gcc
 
     steps:
       - name: Checkout repository
