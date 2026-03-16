@@ -25,6 +25,7 @@ jobs:
         with:
           clang-format-version: '18'
           check-path: '.'
+          fallback-style: Google
 
       - name: Check formatting (backup check)
         run: |
