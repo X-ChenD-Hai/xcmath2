@@ -5,6 +5,8 @@
 [![GitHub Tag](https://img.shields.io/github/v/tag/xcrtp/xcmath)](https://github.com/xcrtp/xcmath/tags)
 ![GitHub top language](https://img.shields.io/github/languages/top/xcrtp/xcmath?style=flat)
 
+[English](./README.md) | [中文](./README-zh.md)
+
 ## 项目概述
 
 **xcmath** 是一个现代化的 C++20 头文件式线性代数库，提供 `vec<T, N>` 和 `mat<T, R, C>` 类型，采用基于 CRTP 的方法组合框架。为 xcal 项目设计。
