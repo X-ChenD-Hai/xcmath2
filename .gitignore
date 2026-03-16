@@ -9,7 +9,6 @@
 !/LICENSE
 !/.clang-format
 !/resources/
-!/vcpkg.json
 !/CMakePresets.json
 !/Doxyfile
 !/xmake.lua
