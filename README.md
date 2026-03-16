@@ -1,5 +1,10 @@
 # xcmath - C++ Linear Algebra Library
 
+[![GitHub License](https://img.shields.io/github/license/xcrtp/xcmath)](https://github.com/xcrtp/xcmath/blob/main/LICENSE)
+[![GitHub Release](https://img.shields.io/github/v/release/xcrtp/xcmath)](https://github.com/xcrtp/xcmath/releases)
+[![GitHub Tag](https://img.shields.io/github/v/tag/xcrtp/xcmath)](https://github.com/xcrtp/xcmath/tags)
+![GitHub top language](https://img.shields.io/github/languages/top/xcrtp/xcmath?style=flat)
+
 ## Project Overview
 
 **xcmath** is a modern C++20 header-only linear algebra library providing `vec<T, N>` and `mat<T, R, C>` types with a CRTP-based method composition framework. Designed for the xcal project.

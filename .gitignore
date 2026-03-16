@@ -5,7 +5,9 @@
 !/docs
 !/CMakeLists.txt
 !/README.md
-!.clang-format
+!/README.zh-CN.md
+!/LICENSE
+!/.clang-format
 !resources/
 !vcpkg.json
 !CMakePresets.json
