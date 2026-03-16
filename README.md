@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**xcmath** is a modern C++23 header-only linear algebra library providing `vec<T, N>` and `mat<T, R, C>` types with a CRTP-based method composition framework. Designed for the xcal project.
+**xcmath** is a modern C++20 header-only linear algebra library providing `vec<T, N>` and `mat<T, R, C>` types with a CRTP-based method composition framework. Designed for the xcal project.
 
 ## Core Features
 
@@ -249,21 +249,23 @@ std::cout << m << std::endl;
 ## Build
 
 ```bash
-# Configure with CMake
-cmake -B build -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+# Configure
+cmake -B build
 
 # Build
 cmake --build build
 
-# Run tests
+# Run tests (requires Google Test)
+cmake -B build -DBUILD_TESTING=ON
+cmake --build build
 ctest --test-dir build
 ```
 
 ## Requirements
 
-- C++23 compatible compiler (MSVC, Clang, GCC)
+- C++20 compatible compiler (MSVC, Clang, GCC)
 - CMake 3.15+
-- vcpkg for dependencies (gtest)
+- [xcmixin](https://github.com/xcrtp/xcmixin) (included as submodule)
 
 ## Compatibility
 
