@@ -1,0 +1,42 @@
+---
+name: Code Quality
+
+on:
+  push:
+    branches: [main, dev, '**']
+  pull_request:
+    branches: [main, dev]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  clang-format:
+    name: Clang Format Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check formatting
+        run: |
+          # Install clang-format if not available
+          if ! command -v clang-format &> /dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y clang-format
+          fi
+
+          # Find all C++ source files
+          FAILED=0
+          for file in $(find . -name '*.hpp' -o -name '*.cc'); do
+            if ! clang-format --style=file --dry-run "$file" 2>/dev/null; then
+              echo "Formatting issues found in: $file"
+              FAILED=1
+            fi
+          done
+
+          if [ $FAILED -eq 1 ]; then
+            echo "Some files have formatting issues. Run 'cmake --build . --target format' to fix."
+          fi
